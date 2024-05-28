@@ -1,11 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { logger } from "../../src/utils/pino";
+import { genPassword } from "../../src/utils/usefullFunction";
 
-
-const genPassword = async(passString:string)=>{
-    return await bcrypt.hash(passString,10);
-}
 
 const prisma = new PrismaClient();
 
