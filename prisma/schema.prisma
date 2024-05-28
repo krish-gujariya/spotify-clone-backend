@@ -20,6 +20,11 @@ model Users{
   password String @db.VarChar(100) 
   dob DateTime? @db.Date
   profileImage String? @db.VarChar(255)
+  playlists Playlists[]
+  followers Followers[]
+  likes Likes[]
+
+
 }
 
 
@@ -28,28 +33,42 @@ model  Artists{
   name String @db.VarChar(50)
   genre Int 
   profileImage String? @db.VarChar(255)
+  albums Albums[]
+  songs Songs[]
+  followers Followers[]
+
 }
 
 model Genres{
   id Int @id @default(autoincrement())
   name String @db.VarChar(50)
+  songs Songs[]
 }
 
 model Albums{
   id Int @id @default(autoincrement())
-  artist_id Int 
+  artist_id Int  
   name String @db.VarChar(50)
   release_date DateTime @db.Date
   image String? @db.VarChar(255)
+  artist Artists  @relation(fields: [artist_id], references: [id]) 
+  songs Songs[] 
 }
 
 
 model Songs{
   id Int @id @default(autoincrement())
+  artist_id Int
   album_id Int
+  genre_id Int
   name String @db.VarChar(50)
   duration Int 
   path String? @db.VarChar(255)
+  artist Artists  @relation(fields: [artist_id], references: [id])   
+  genres Genres @relation(fields: [genre_id], references: [id])
+  albums Albums @relation(fields: [album_id], references: [id])
+  playlist_songs Playlist_Songs[]
+  likes Likes[]
 }
 
 
@@ -58,5 +77,32 @@ model Playlists {
   user_id Int 
   name String @db.VarChar(50)
   image String? @db.VarChar(255)
+  users Users @relation(fields: [user_id], references: [id])
+  playlist_songs Playlist_Songs[]
 
+}
+
+model Playlist_Songs {
+  playlist_id Int 
+  song_id Int
+  songs Songs @relation(fields: [song_id], references: [id])
+  playlist Playlists @relation(fields: [playlist_id], references: [id])
+  @@id([playlist_id, song_id])
+
+}
+
+model Followers{
+  user_id Int
+  artist_id Int
+  users Users @relation(fields: [user_id], references: [id])
+  artists Artists @relation(fields: [artist_id], references: [id])
+  @@id([user_id,artist_id])
+}
+
+model Likes{
+  user_id Int
+  song_id Int
+  users Users @relation(fields: [user_id], references: [id])
+  songs Songs @relation(fields: [song_id], references: [id])
+  @@id([user_id,song_id])
 }
