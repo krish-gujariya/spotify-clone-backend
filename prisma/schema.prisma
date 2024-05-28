@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Users{
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(50) 
+  email String @db.VarChar(50) @unique
+  password String @db.VarChar(100) 
+  dob DateTime? @db.Date
+  profileImage String? @db.VarChar(255)
+}
+
+
+model  Artists{
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(50)
+  genre Int 
+  profileImage String? @db.VarChar(255)
+}
+
+model Genres{
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(50)
+}
+
+model Albums{
+  id Int @id @default(autoincrement())
+  artist_id Int 
+  name String @db.VarChar(50)
+  release_date DateTime @db.Date
+  image String? @db.VarChar(255)
+}
+
+
+model Songs{
+  id Int @id @default(autoincrement())
+  album_id Int
+  name String @db.VarChar(50)
+  duration Int 
+  path String? @db.VarChar(255)
+}
+
+
+model Playlists {
+  id Int @id @default(autoincrement())
+  user_id Int 
+  name String @db.VarChar(50)
+  image String? @db.VarChar(255)
+
+}
