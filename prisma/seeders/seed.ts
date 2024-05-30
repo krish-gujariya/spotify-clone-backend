@@ -19,14 +19,19 @@ const main = async () => {
             }
         })
 
-        await prisma.genres.upsert({
-            where:{id:1},
-            update:{},
-            create:{
-                id:1,
-                name:'Indie',
-            }
-        })
+       await  prisma.genres.createMany({
+            data: [
+              { name: "Indie" },
+              { name: "Romance" },
+              { name: "BollyWood" },
+              { name: "Tamil" },
+              { name: "Gujarati" },
+              { name: "Hip Hop" },
+              { name: "Jazz" },
+              { name: "Electronic" },
+            ],
+            skipDuplicates: true, // It's Skip duplicate value in table
+          });
 
         await prisma.artists.upsert({
             where:{id:1},

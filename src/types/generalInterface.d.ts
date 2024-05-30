@@ -4,14 +4,14 @@ interface IUserData {
     name:string,
     email:string,
     password:string,
-    dob:string
+    dob:Date
 }
 
 
 // Interface for admin Data
 interface IArtistData {
     name:string,
-    genre:internal,
+    genre:number,
 }
 
 // Fetched Genre Interface 
@@ -24,6 +24,23 @@ interface IGenres {
 
 
 
+// Song data interface
+interface ISongInsertdata {
+    artist_id: number;
+    genre_id: number;
+    album_id?: number ;
+    duration: number;
+    name: string;
+  }
+  
+
+// Album data interface
+interface IAlbumData {
+    artist_id: number;
+    release_date: Date;
+    name: string;
+  }
+  
 
 
-export {IUserData, IArtistData,IGenres }
+export {IUserData, IArtistData,IGenres, ISongInsertdata , IAlbumData}

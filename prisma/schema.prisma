@@ -30,7 +30,7 @@ model Users {
 
 model Artists {
   id           Int         @id @default(autoincrement())
-  fullname         String      @db.VarChar(50)
+  name         String      @db.VarChar(50)
   genre        Int
   profileImage String?     @db.VarChar(255)
   created_at   DateTime    @default(now())
@@ -79,6 +79,7 @@ model Songs {
   albums         Albums?           @relation(fields: [album_id], references: [id])
   playlist_songs Playlist_Songs[]
   likes          Likes[]
+  @@unique([path])
 }
 
 model Playlists {
@@ -127,4 +128,9 @@ model Likes {
   songs      Songs     @relation(fields: [song_id], references: [id])
 
   @@id([user_id, song_id])
+}
+
+model Temp{
+  id             Int              @id @default(autoincrement())
+
 }
