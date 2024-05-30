@@ -47,11 +47,18 @@ const createUpdateCodeBlock = (res: Response, data: { success:boolean }) => {
   }
 };
 
+
+// code block to show validation error message 
+const validationErrorCodeBlock = (res:Response,message:string)=>{
+  res.json({success:false, message:message})
+}
+
 export {
   genPassword,
   commonResJson,
   commonResJsonFail,
   commonResJsonSuccess,
   fetchResponseFunc,
-  createUpdateCodeBlock
+  createUpdateCodeBlock,
+  validationErrorCodeBlock
 };
