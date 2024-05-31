@@ -11,7 +11,8 @@ interface IUserData {
 // Interface for admin Data
 interface IArtistData {
     name:string,
-    genre:number,
+    email:string,
+    password:string
 }
 
 // Fetched Genre Interface 
@@ -26,7 +27,7 @@ interface IGenres {
 
 // Song data interface
 interface ISongInsertdata {
-    artist_id: number;
+    artist_id: number[];
     genre_id: number;
     album_id?: number ;
     duration: number;

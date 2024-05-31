@@ -27,6 +27,8 @@ import {
   fetchAllGenres,
   fetchAllSongData,
   fetchArtistData,
+  fetchLikedSongs,
+  fetchPlayedSong,
   fetchUserData,
 } from "../services/prismaRead";
 import {
@@ -65,13 +67,16 @@ const insertUser = async (req: Request, res: Response): Promise<void> => {
 
 const artistInsertSchema = joi.object().keys({
   name: joi.string(),
-  genre: joi.number(),
+  email: joi.string().email(),
+  password:joi.string(),
 });
 
 const insertArtist = async (req: Request, res: Response): Promise<void> => {
   const { error, value }: { error?: joi.ValidationError; value: IArtistData } =
     artistInsertSchema.validate(req.body);
   if (error) {
+    console.log(error);
+    
     validationErrorCodeBlock(res, error.message);
   } else {
     const data = await insertArtistData(value);
@@ -98,7 +103,7 @@ const insertAlbum = async (req: Request, res: Response) => {
 };
 
 const insertSongSchema = joi.object().keys({
-  artist_id: joi.number(),
+  artist_id: joi.array().items(joi.number()),
   genre_id: joi.number(),
   album_id: joi.number(),
   duration: joi.number().max(15),
@@ -146,29 +151,72 @@ const showSongsData = async (req: Request, res: Response) => {
   fetchResponseFunc(res, data);
 };
 
+const showPlayedSongData = async (req: Request, res: Response) => {
+  const data = await fetchPlayedSong();
+  fetchResponseFunc(res, data);
+}
+const showLikedSongData = async (req: Request, res: Response) => {
+  const data = await fetchLikedSongs();
+  fetchResponseFunc(res, data);
+}
+
+
+//Common validationSchema for update operation
+const updateValidateSchema = joi.object().keys({
+  name: joi.string(),
+  id: joi.number().positive(),
+  artistId: joi.number().positive()
+})
+
+
 const updateUserData = async (req: Request, res: Response) => {
-  const { name, id }: { name: string; id: number } = req.body;
-  const data = await updateUser(name, id);
-  createUpdateCodeBlock(res, data);
+
+  const { error, value} = updateValidateSchema.validate(req.body);
+  if(!error){
+    const { name, id }: { name: string; id: number } = value
+    const data = await updateUser(name, id);
+    createUpdateCodeBlock(res, data);
+  }
+  else{
+    validationErrorCodeBlock(res,error.message)
+  }
 };
 
 const updateArtistData = async (req: Request, res: Response) => {
-  const { name, id }: { name: string; id: number } = req.body;
-  const data = await updateArtist(name, id);
-  createUpdateCodeBlock(res, data);
+  const { error, value} = updateValidateSchema.validate(req.body);
+  if(!error){
+    const { name, id }: { name: string; id: number } = value;
+    const data = await updateArtist(name, id);
+    createUpdateCodeBlock(res, data);
+  }
+  else{
+    validationErrorCodeBlock(res,error.message)
+  }
 };
 
 const updateAlbumData = async (req: Request, res: Response) => {
-  const { name, id, artistId }: { name: string; id: number; artistId: number } =
-    req.body;
+  const { error, value} = updateValidateSchema.validate(req.body);
+if(error){
+  validationErrorCodeBlock(res,error.message)
+}
+else{
+  const { name, id, artistId }: { name: string; id: number; artistId: number } = value;
   const data = await updateAlbum(name, id, artistId);
   createUpdateCodeBlock(res, data);
+}
 };
 
 const updateSongData = async (req: Request, res: Response) => {
-  const { name, id }: { name: string; id: number } = req.body;
-  const data = await updateSong(name, id);
-  createUpdateCodeBlock(res, data);
+  const { error, value} = updateValidateSchema.validate(req.body);
+  if(error){
+    validationErrorCodeBlock(res,error.message)
+  }
+  else{
+    const { name, id }: { name: string; id: number } = value;
+    const data = await updateSong(name, id);
+    createUpdateCodeBlock(res, data);
+
+  }
 };
 
 const deleteuser = async (req: Request, res: Response) => {
@@ -195,4 +243,6 @@ export {
   updateSongData,
   updateUserData,
   deleteuser,
+  showPlayedSongData,
+  showLikedSongData
 };

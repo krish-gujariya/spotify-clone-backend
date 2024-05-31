@@ -1,6 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { logger } from "../utils/pino";
-import {  IAlbumData, IArtistData, ISongInsertdata, IUserData } from "../types/generalInterface";
+import {
+  IAlbumData,
+  IArtistData,
+  ISongInsertdata,
+  IUserData,
+} from "../types/generalInterface";
 import { genPassword } from "../utils/usefullFunction";
 
 const prisma = new PrismaClient();
@@ -11,7 +16,7 @@ const insertUserData = async (
   userData: IUserData
 ): Promise<{ success: boolean }> => {
   const date = new Date(userData.dob);
-  userData.dob = date
+  userData.dob = date;
   try {
     await prisma.users.create({
       data: userData,
@@ -26,12 +31,13 @@ const insertUserData = async (
 // Inset into artist table
 
 const insertArtistData = async (
- artistData:IArtistData
+  artistData: IArtistData
 ): Promise<{ success: boolean }> => {
-
   try {
+    artistData.password = await genPassword(artistData.password);
+
     await prisma.artists.create({
-      data:artistData,
+      data: artistData,
     });
     return { success: true };
   } catch (error) {
@@ -68,16 +74,15 @@ insertGenreData();
 
 // Insert into Albums table
 
-const insertAlbumData = async (albumData:IAlbumData) => {
-    const dateSt = new Date(albumData.release_date);
-    albumData.release_date = dateSt;
+const insertAlbumData = async (albumData: IAlbumData) => {
+  const dateSt = new Date(albumData.release_date);
+  albumData.release_date = dateSt;
   try {
     await prisma.albums.create({
       data: albumData,
     });
     return { success: true };
   } catch (error) {
-    
     logger.error(error);
     return { success: false };
   }
@@ -85,12 +90,24 @@ const insertAlbumData = async (albumData:IAlbumData) => {
 
 // Insert into Songs table
 
-const insertSongData = async (
-  songObject:ISongInsertdata
-) => {
+const insertSongData = async (songObject: ISongInsertdata) => {
   try {
+    const artistIdArray: { artist_id: number }[] = [];
+    songObject.artist_id.forEach((element) => {
+      artistIdArray.push({ artist_id: element });
+    });
+
     await prisma.songs.create({
-      data:songObject,
+      data: {
+        name: songObject.name,
+        duration: songObject.duration,
+        genre_id: songObject.genre_id,
+        artists_songs: {
+          create: songObject.artist_id.map((artistId)=>({
+            artist_id:artistId
+          }))
+        },
+      },
     });
     return { success: true };
   } catch (error) {

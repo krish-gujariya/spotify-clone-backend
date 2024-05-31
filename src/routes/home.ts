@@ -14,7 +14,9 @@ import {
   updateUserData,
   showFetchArtist,
   showFetcheUser,
-  deleteuser
+  deleteuser,
+  showPlayedSongData,
+  showLikedSongData
 } from "../controllers/home";
 const router: Router = express.Router();
 
@@ -33,7 +35,9 @@ router.get("/showGenre", showFetchedGenres);
 router.get("/showAlbum", showAlbumData);
 router.get("/showSongs", showSongsData);
 router.get("/showArtists", showFetchArtist);
-router.get("/showUsers", showFetcheUser);
+router.post("/showUsers", showFetcheUser);
+router.get("/showPlayedSongs", showPlayedSongData);
+router.get("/showLikedSongs", showLikedSongData);
 
 
 

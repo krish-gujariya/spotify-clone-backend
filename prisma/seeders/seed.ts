@@ -8,116 +8,14 @@ const prisma = new PrismaClient();
 const main = async () => {
 
 
+
   try {
-    await prisma.users.upsert({
-      where: { email: "krish@gmail.com" },
-      update: {},
-      create: {
-        email: "krish@gmail.com",
-        name: "Krish Gujariya",
-        password: await genPassword("mypassword1"),
-        dob: new Date("12-03-2003"),
-        // followers:{
-        //   createMany:{
-        //     data:[
-        //       {artist_id:1},
-        //       {artist_id:3}
-        //     ]
-        //   }
-        // },
-        // likes:{
-        //   createMany:{
-        //     data:[
-        //       {song_id:2},
-        //       {song_id:4},
-        //       {song_id:6},
-        //     ]
-        //   }
-        // },
-        // played_songs:{
-        //   createMany:{
-        //     data:[
-        //       {song_id:1, count:3},
-        //       {song_id:3, count:4},
-        //       {song_id:2, count:9},
-        //       {song_id:6, count:10},
-        //       {song_id:7, count:1}
-        //     ]
-        //   }
-        // },
-        // playlists:{
-        //   create:{name:"Relax", playlist_songs:{
-        //     createMany:{
-        //       data:[
-        //         {song_id:2},
-        //         {song_id:3},
-        //         {song_id:4},
-        //         {song_id:6},
-        //         {song_id:7},
-        //       ]
-        //     }
-        //   }}
-        // }
-      },
-    });
-    await prisma.users.upsert({
-      where: { email: "jj@getMaxListeners.com" },
-      update: {},
-      create: {
-        email: "jj@getMaxListeners.com",
-        name: "Jasmin Jani",
-        password: await genPassword("password1"),
-        dob: new Date("03-12-2003"),
-        // followers:{
-        //   createMany:{
-        //     data:[
-        //       {artist_id:1},
-        //       {artist_id:2},
-        //       {artist_id:3},
-        //       {artist_id:4},
-        //     ],
-        //   }
-        // },
-        // likes:{
-        //   createMany:{
-        //     data:[
-        //       {song_id:1},
-        //       {song_id:3},
-        //       {song_id:4},
-        //       {song_id:7},
-        //     ],
-        //     skipDuplicates:true
-        //   }
-        // },
-        // played_songs:{
-        //   createMany:{
-        //     data:[
-        //       {count:12,song_id:1},
-        //       {count:10,song_id:7},
-        //       {count:5,song_id:3},
-        //       {count:3,song_id:2},
-        //       {count:12,song_id:4},
-        //     ],
-        //     skipDuplicates:true
-        //   }
-        // },
-        // playlists:{
-        //   create:{name:"My PlayList1", playlist_songs:{
-        //     createMany:{
-        //       data:[
-        //         {song_id:1},
-        //         {song_id:2},
-        //         {song_id:3},
-        //         {song_id:4},
-        //         {song_id:5},
-        //         {song_id:6},
-        //       ],
-        //       skipDuplicates:true
-        //     }
-        //   }}
-        // }
-      },
-    });
+    
+    await prisma.users.deleteMany({});
+    await prisma.artists.deleteMany({});
+    await prisma.albums.deleteMany({});
+    await prisma.songs.deleteMany({});
+    await prisma.genres.deleteMany({});
 
     await prisma.genres.createMany({
       data: [
@@ -186,7 +84,68 @@ const main = async () => {
       skipDuplicates:true,
     })
 
-    
+    await prisma.users.upsert({
+      where: { email: "krish@gmail.com" },
+      update: {},
+      create: {
+        email: "krish@gmail.com",
+        name: "Krish Gujariya",
+        password: await genPassword("mypassword1"),
+        dob: new Date("12-03-2003"),
+        followers:{
+          createMany:{
+            data:[
+              {artist_id:1},
+              {artist_id:3}
+            ]
+          }
+        },
+        likes:{
+          createMany:{
+            data:[
+              {song_id:2},
+              {song_id:4},
+              {song_id:6},
+            ]
+          }
+        },
+        played_songs:{
+          createMany:{
+            data:[
+              {song_id:1, count:3},
+              {song_id:3, count:4},
+              {song_id:2, count:9},
+              {song_id:6, count:10},
+              {song_id:7, count:1}
+            ]
+          }
+        },
+        playlists:{
+          create:{name:"Relax", playlist_songs:{
+            createMany:{
+              data:[
+                {song_id:2},
+                {song_id:3},
+                {song_id:4},
+                {song_id:6},
+                {song_id:7},
+              ]
+            }
+          }}
+        }
+      },
+    });
+    await prisma.users.upsert({
+      where: { email: "jj@getMaxListeners.com" },
+      update: {},
+      create: {
+        email: "jj@getMaxListeners.com",
+        name: "Jasmin Jani",
+        password: await genPassword("password1"),
+        dob: new Date("03-12-2003"),
+       
+      },
+    });
 
   } catch (error) {
     logger.info(error);
