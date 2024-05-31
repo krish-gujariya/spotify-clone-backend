@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { logger } from "../utils/pino";
 import { IAlbumData, IGenres } from "../types/generalInterface";
+import { returnObjectFunction } from "../utils/usefullFunction";
 
 const prisma = new PrismaClient();
 
@@ -222,6 +223,16 @@ const fetchLikedSongs = async () => {
   }
 };
 
+const fetchPlaylists = async()=>{
+  try {
+    const result = await prisma.playlists.findMany({});
+    return returnObjectFunction(true,"Playlist record fetched successfully...", result);
+  } catch (error) {
+    return returnObjectFunction(false,`${(error as Error).message}`, null);
+    
+  }
+}
+
 export {
   fetchAllGenres,
   fetchUserData,
@@ -230,4 +241,6 @@ export {
   fetchAllSongData,
   fetchPlayedSong,
   fetchLikedSongs,
+  fetchPlaylists
 };
+

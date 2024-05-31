@@ -6,7 +6,8 @@ import {
   ISongInsertdata,
   IUserData,
 } from "../types/generalInterface";
-import { genPassword } from "../utils/usefullFunction";
+import { genPassword, returnObjectFunction } from "../utils/usefullFunction";
+import { successMessage } from "../utils/generalVariables";
 
 const prisma = new PrismaClient();
 
@@ -92,10 +93,11 @@ const insertAlbumData = async (albumData: IAlbumData) => {
 
 const insertSongData = async (songObject: ISongInsertdata) => {
   try {
-    const artistIdArray: { artist_id: number }[] = [];
-    songObject.artist_id.forEach((element) => {
-      artistIdArray.push({ artist_id: element });
-    });
+    // const artistIdArray: { artist_id: number }[] = [];
+    // console.log(songObject.artist_id)
+    // songObject.artist_id.forEach((element) => {
+    //   artistIdArray.push({ artist_id: element });
+    // });
 
     await prisma.songs.create({
       data: {
@@ -103,9 +105,9 @@ const insertSongData = async (songObject: ISongInsertdata) => {
         duration: songObject.duration,
         genre_id: songObject.genre_id,
         artists_songs: {
-          create: songObject.artist_id.map((artistId)=>({
-            artist_id:artistId
-          }))
+          createMany: {
+            data: songObject?.artist_id?.map((id) => ({ artist_id: id })) || [],
+          },
         },
       },
     });
@@ -116,4 +118,20 @@ const insertSongData = async (songObject: ISongInsertdata) => {
   }
 };
 
-export { insertUserData, insertArtistData, insertAlbumData, insertSongData };
+// Insert into playlists table
+const insertPlaylistData = async (name:string,id:number) => {
+  try {
+    const data = await prisma.playlists.create({
+      data: {name:name,user_id:id}
+    });
+    logger.info(data);
+   return returnObjectFunction(true, successMessage.playlists, data);
+} catch (error) {
+  logger.error(error)
+    return returnObjectFunction(false, `${(error as Error).message}`, null);
+  }
+};
+
+
+
+export { insertUserData, insertArtistData, insertAlbumData, insertSongData , insertPlaylistData};

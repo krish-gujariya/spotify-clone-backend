@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { IResponseFormat } from "../types/coreModuleExtendedInterface";
+import Joi from "joi";
 
 // Function for generate hash password
 const genPassword = async (passString: string) => {
@@ -17,23 +18,17 @@ const commonResJson = (
   return res.json({ message: message, success: flag });
 };
 
-const commonResJsonFail = (res: Response) => {
-  return res.json({ message: "Something went Wrong...", success: false });
-};
-
-const commonResJsonSuccess = (res: Response) => {
-  return res.json({ message: "All OK", success: true });
-};
 
 // Common code block to send fetched data in response json
 const fetchResponseFunc = (
   res: Response,
-  data: { success: boolean; result: unknown | null }
+  data: { success: boolean; result: unknown | null },
+  message?:string
 ) => {
   if (data.success) {
-    res.json({ success: true, result: data.result });
+    res.json({ success: true, result: data.result, message:message });
   } else {
-    res.json({ success: false, result: null });
+    res.json({ success: false, result: null, message:message });
   }
 };
 
@@ -49,16 +44,26 @@ const createUpdateCodeBlock = (res: Response, data: { success:boolean }) => {
 
 
 // code block to show validation error message 
-const validationErrorCodeBlock = (res:Response,message:string)=>{
-  res.json({success:false, message:message})
+const validationStatus = (res:Response,next:NextFunction,error?:Joi.ValidationError)=>{
+  if(error){
+    res.json({success:false, message:error.message})
+  }
+  else{
+    next();
+  }
+}
+
+// function for common format return object 
+const returnObjectFunction = async(flag:boolean, message:string, data:unknown)=>{
+
+  return { success:flag, message:message, result:data}
 }
 
 export {
   genPassword,
   commonResJson,
-  commonResJsonFail,
-  commonResJsonSuccess,
   fetchResponseFunc,
   createUpdateCodeBlock,
-  validationErrorCodeBlock
+  validationStatus,
+  returnObjectFunction
 };

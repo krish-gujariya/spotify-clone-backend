@@ -8,7 +8,9 @@
     "dev": "nodemon dist/src/app.ts",
     "migrateup": "npx prisma migrate dev --create-only",
     "migratedown": "npx prisma migrate diff  --from-schema-datamodel prisma/schema.prisma  --to-schema-datasource prisma/schema.prisma  --script > down.sql",
-    "migrate": "npx prisma migrate dev"
+    "migrate": "npx prisma migrate dev",
+    "migrate:reset":"prisma migrate reset"
+
   },
   "prisma": {
     "seed": "ts-node prisma/seeders/seed.ts"
