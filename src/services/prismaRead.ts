@@ -200,9 +200,12 @@ const fetchPlayedSong = async () => {
   }
 };
 
-const fetchLikedSongs = async () => {
+const fetchLikedSongs = async (id: number) => {
   try {
     const result = await prisma.users.findMany({
+      where: {
+        id: id,
+      },
       select: {
         name: true,
         likes: {
@@ -210,6 +213,7 @@ const fetchLikedSongs = async () => {
             songs: {
               select: {
                 name: true,
+                duration: true,
               },
             },
           },
@@ -223,15 +227,27 @@ const fetchLikedSongs = async () => {
   }
 };
 
-const fetchPlaylists = async()=>{
+const fetchPlaylists = async (id: number) => {
   try {
-    const result = await prisma.playlists.findMany({});
-    return returnObjectFunction(true,"Playlist record fetched successfully...", result);
+    const result = await prisma.playlists.findMany({
+      where: {
+        id: id,
+      },
+      select: {
+        name: true,
+      },
+    });
+    return returnObjectFunction(
+      true,
+      "Playlist record fetched successfully...",
+      result
+    );
   } catch (error) {
-    return returnObjectFunction(false,`${(error as Error).message}`, null);
-    
+    logger.error(error);
+    return returnObjectFunction(false, `${(error as Error).message}`, null);
   }
-}
+};
+
 
 export {
   fetchAllGenres,
@@ -241,6 +257,5 @@ export {
   fetchAllSongData,
   fetchPlayedSong,
   fetchLikedSongs,
-  fetchPlaylists
+  fetchPlaylists,
 };
-

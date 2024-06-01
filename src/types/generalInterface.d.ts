@@ -43,5 +43,9 @@ interface IAlbumData {
   }
   
 
+  type IReqQuerryId = {
+    id:string
+  }
 
-export {IUserData, IArtistData,IGenres, ISongInsertdata , IAlbumData}
+
+export {IUserData, IArtistData,IGenres, ISongInsertdata , IAlbumData, IReqQuerryId}

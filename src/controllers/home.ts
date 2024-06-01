@@ -6,6 +6,7 @@ import { logger } from "../utils/pino";
 import {
   IAlbumData,
   IArtistData,
+  IReqQuerryId,
   ISongInsertdata,
   IUserData,
 } from "../types/generalInterface";
@@ -18,6 +19,7 @@ import {
   insertArtistData,
   insertPlaylistData,
   insertSongData,
+  insertSongInPlaylist,
   insertUserData,
 } from "../services/prismaCreate";
 import {
@@ -49,13 +51,13 @@ const homePage = (req: Request, res: Response) => {
 const insertUser = async (req: Request, res: Response): Promise<void> => {
   const userData: IUserData = req.body;
   const data = await insertUserData(userData);
-  createUpdateCodeBlock(res, data);
+  fetchResponseFunc(res,data, data.message)
 };
 
 const insertArtist = async (req: Request, res: Response): Promise<void> => {
   const artistData: IArtistData = req.body;
   const data = await insertArtistData(artistData);
-  createUpdateCodeBlock(res, data);
+  fetchResponseFunc(res,data,data.message)
 };
 
 const insertAlbum = async (req: Request, res: Response) => {
@@ -71,8 +73,14 @@ const insertSong = async (req: Request, res: Response) => {
 };
 
 const createPlaylists = async (req: Request, res: Response) => {
-  const { name, id }: { name: string; id: number } = req.body;
-  const data = await insertPlaylistData(name, id);
+  const { name, user_id }: { name: string; user_id: number } = req.body;
+  const data = await insertPlaylistData(name, user_id);
+  fetchResponseFunc(res, data, data.message);
+};
+
+const insertSongInPlaylistRecord = async (req: Request, res: Response) => {
+  const { playlist_id, song_id }:{playlist_id:number, song_id:number[]}  = req.body;
+  const data = await insertSongInPlaylist(playlist_id,song_id);
   fetchResponseFunc(res, data, data.message);
 };
 
@@ -107,13 +115,16 @@ const showPlayedSongData = async (req: Request, res: Response) => {
   fetchResponseFunc(res, data);
 };
 const showLikedSongData = async (req: Request, res: Response) => {
-  const data = await fetchLikedSongs();
+  const {id}:IReqQuerryId = req.query as IReqQuerryId
+  const data = await fetchLikedSongs(parseInt(id));
   fetchResponseFunc(res, data);
 };
 
 const showPlaylistsData = async (req: Request, res: Response) => {
-  const data = await fetchPlaylists();
-  fetchResponseFunc(res, data, data.message);
+  const {id}:IReqQuerryId = req.query as IReqQuerryId ;
+    const data = await fetchPlaylists(parseInt(id));
+    fetchResponseFunc(res, data, data.message);
+
 };
 
 const updateUserData = async (req: Request, res: Response) => {
@@ -169,4 +180,5 @@ export {
   showLikedSongData,
   createPlaylists,
   showPlaylistsData,
+  insertSongInPlaylistRecord
 };

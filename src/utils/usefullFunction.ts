@@ -28,7 +28,7 @@ const fetchResponseFunc = (
   if (data.success) {
     res.json({ success: true, result: data.result, message:message });
   } else {
-    res.json({ success: false, result: null, message:message });
+    res.json({ success: false, message:message });
   }
 };
 
@@ -54,7 +54,7 @@ const validationStatus = (res:Response,next:NextFunction,error?:Joi.ValidationEr
 }
 
 // function for common format return object 
-const returnObjectFunction = async(flag:boolean, message:string, data:unknown)=>{
+const returnObjectFunction = async(flag:boolean, message?:string, data?:unknown)=>{
 
   return { success:flag, message:message, result:data}
 }
@@ -67,3 +67,4 @@ export {
   validationStatus,
   returnObjectFunction
 };
+

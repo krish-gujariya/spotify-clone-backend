@@ -6,6 +6,7 @@ import {
   insertArtistSchema,
   insertSongSchema,
   insertUserSchema,
+  playlistSongsValidationSchema,
 } from "./validationSchema";
 
 // User Validation
@@ -38,10 +39,23 @@ const commonValidation = (req: Request, res: Response, next: NextFunction) => {
   validationStatus(res, next, error);
 };
 
+const commonValidationOnUrl = (req: Request, res: Response, next: NextFunction) => {
+    const { error } = commonValidationSchema.validate(req.query);
+  validationStatus(res, next, error);
+};
+
+// Validation on Inserting in songs in playlist.
+const songInPlaylistValidate = (req: Request, res: Response, next: NextFunction) => {
+  const { error } = playlistSongsValidationSchema.validate(req.query);
+validationStatus(res, next, error);
+};
+
 export {
   userValidation,
   artistValidation,
   albumValidation,
   songValidation,
   commonValidation,
+  commonValidationOnUrl,
+  songInPlaylistValidate
 };

@@ -8,43 +8,54 @@ import {
 } from "../types/generalInterface";
 import { genPassword, returnObjectFunction } from "../utils/usefullFunction";
 import { successMessage } from "../utils/generalVariables";
+import {
+  artistCheck,
+  checkForUserAlreadyExist,
+  fetchSongsFromPlaylists,
+  userExistBasedeOnId,
+} from "./fetchingQueryForCondition";
 
 const prisma = new PrismaClient();
 
 // Insert into user Table
 
-const insertUserData = async (
-  userData: IUserData
-): Promise<{ success: boolean }> => {
+const insertUserData = async (userData: IUserData) => {
   const date = new Date(userData.dob);
   userData.dob = date;
   try {
-    await prisma.users.create({
-      data: userData,
-    });
-    return { success: true };
+    const result = await checkForUserAlreadyExist(userData.email);
+    if (result.success) {
+      userData.password = await genPassword(userData.password);
+      const data = await prisma.users.create({
+        data: userData,
+      });
+      return returnObjectFunction(true, "User Created SuccessFully...", data);
+    } else {
+      return returnObjectFunction(false, result.message);
+    }
   } catch (error) {
     logger.error(error);
-    return { success: false };
+    return returnObjectFunction(false, "Something Went Wrong...");
   }
 };
 
 // Inset into artist table
 
-const insertArtistData = async (
-  artistData: IArtistData
-): Promise<{ success: boolean }> => {
+const insertArtistData = async (artistData: IArtistData) => {
   try {
     artistData.password = await genPassword(artistData.password);
-
-    await prisma.artists.create({
-      data: artistData,
-    });
-    return { success: true };
+    const result = await artistCheck(artistData.email);
+    if (result.success) {
+      const data = await prisma.artists.create({
+        data: artistData,
+      });
+      return returnObjectFunction(true, "Artist Created SuccessFully...", data);
+    } else {
+      return returnObjectFunction(false, result.message);
+    }
   } catch (error) {
     logger.error(error);
-
-    return { success: false };
+    return returnObjectFunction(false, "Something Went Wrong...");
   }
 };
 
@@ -119,19 +130,65 @@ const insertSongData = async (songObject: ISongInsertdata) => {
 };
 
 // Insert into playlists table
-const insertPlaylistData = async (name:string,id:number) => {
+const insertPlaylistData = async (name: string, id: number) => {
   try {
-    const data = await prisma.playlists.create({
-      data: {name:name,user_id:id}
-    });
-    logger.info(data);
-   return returnObjectFunction(true, successMessage.playlists, data);
-} catch (error) {
-  logger.error(error)
+    const result = await userExistBasedeOnId(id);
+    if (result.success) {
+      const data = await prisma.playlists.create({
+        data: { name: name, user_id: id },
+      });
+      return returnObjectFunction(true, successMessage.playlists, data);
+    } else {
+      return returnObjectFunction(false, result.message);
+    }
+  } catch (error) {
+    logger.error(error);
     return returnObjectFunction(false, `${(error as Error).message}`, null);
   }
 };
 
+const insertSongInPlaylist = async (playlistId: number, songIds: number[]) => {
+  try {
+    const songData = await fetchSongsFromPlaylists(songIds, playlistId);
+    if (songData.success) {
+      const missingId = songIds.filter((element) => !(songData.result as number[]).includes(element));
 
+      if (missingId.length == 0) {
+        return returnObjectFunction(
+          false,
+          "Songs are already exists in playlists"
+        );
+      } else {
+        const data = await prisma.playlist_Songs.createMany({
+          data: missingId?.map((id) => ({
+            playlist_id: playlistId,
+            song_id: id,
+          }),
+          ),
+          skipDuplicates:true
+        });
+        
+        if(songIds.length == missingId.length){
+          return returnObjectFunction(true, "Songs successfully inserted in playlists...",data );
+        }
+        else{
+          return returnObjectFunction(true, `Songs are inserted by neglecting ${songData.result} as they are already inserted`)
+        }
+      }
+    } else {
+     return returnObjectFunction(false,songData.message);
+    }
+  } catch (error) {
+    logger.error(error)
+    return returnObjectFunction(false, (error as Error).name);
+  }
+};
 
-export { insertUserData, insertArtistData, insertAlbumData, insertSongData , insertPlaylistData};
+export {
+  insertUserData,
+  insertArtistData,
+  insertAlbumData,
+  insertSongData,
+  insertPlaylistData,
+  insertSongInPlaylist
+};
