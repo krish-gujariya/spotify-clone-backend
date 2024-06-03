@@ -72,99 +72,197 @@ const fetchSongsFromPlaylists = async (
   playlistId: number
 ) => {
   try {
-    const data = await prisma.playlist_Songs.findMany({
-      where: {
-        AND: [{ song_id: { in: songIds } }, { playlist_id: playlistId }],
-      },
-      select: {
-        song_id: true,
-      },
-    });
-    const firstObj: { id: number[] } = { id: [] };
 
-    let songs: { id: number[] } = data.reduce((prev, cur) => {
-      prev.id.push(cur.song_id);
-      return prev;
-    }, firstObj);
+    const songs  = await prisma.songs.findMany({where:{id:{in:songIds}}});
+    const playlist = await prisma.playlists.findFirst({where:{id:playlistId}});
 
-    return returnObjectFunction(true, "Songs fetched successfully...", songs.id)
-    
+    if(!playlist?.name){
+      return returnObjectFunction(false,`Playlist doesn't extists..`);
+    }
+    else if(songs.length == 0){
+      return returnObjectFunction(false, `Songs doesn't exists...`);
+    }
+    else{
+      const songsIds = songs.reduce((prev:number[],curr)=>{
+        prev.push(curr.id);
+        return prev;
+      },[]);
+      
+      const missingSongId = songIds.filter((id)=>!songsIds.includes(id));
+
+      const playlistSongs = await prisma.playlist_Songs.findMany({
+        where:{
+          AND:[ {playlist_id:playlistId}, {song_id:{in:songsIds}}]
+        }
+      });
+
+      if(missingSongId.length!=0 && playlistSongs.length==0 ){
+        return returnObjectFunction(true, `Playlist songs inserted successfully by neglecting ${missingSongId} as songs of that id doesnt exist... `, songsIds);
+      }
+      else if(playlistSongs.length ==0){
+        return returnObjectFunction(true, `Playlist songs inserted successfully... `, songsIds);
+      }
+      
+      else{
+        const playlistSongId =playlistSongs.reduce((prev:number[],curr)=>{prev.push(curr.song_id); return prev; }, [])
+        const missingPlaylistSong = songIds.filter((id)=>!playlistSongId.includes(id));
+
+        if(missingPlaylistSong.length==0){
+          return returnObjectFunction(false, `Songs already exists in playlsit...` );
+        }
+        else if(missingPlaylistSong.length == songIds.length){
+          return returnObjectFunction(true,`Playlist songs inserted successfully...`, missingPlaylistSong );
+        }
+        else{
+          return returnObjectFunction(true,`Playlist songs inserted successfully by neglecting ${playlistSongId} as they are already exists in playlists...`, missingPlaylistSong );
+        }
+      }
+
+    }
+
   } catch (error) {
-    logger.error(error);
-    return returnObjectFunction(true, "Songs fetched successfully...", null)
+    
   }
 };
 
-
-const checkForPlayedSongs = async(user_id:number, song_ids:number[]) =>{
-
+const checkForPlayedSongs = async (user_id: number, song_ids: number[]) => {
   try {
-    const user = await prisma.users.findFirst({where:{id:user_id}});
+    const user = await prisma.users.findFirst({ where: { id: user_id } });
     const data = await prisma.songs.findMany({
-      where:{
-        id:{
-          in:song_ids
-        }
+      where: {
+        id: {
+          in: song_ids,
+        },
       },
-      select:{
-        id:true
-      }
-    })
-    if(data.length==0  ){
-      return returnObjectFunction(false,"Songs doesnt exists...")
-    }
-    else if(!user?.name){
-      return returnObjectFunction(false, "User doesnt exists...")
-    }
-  
-    else{
-      const firstObj:{songid: number[]} = {
-        songid :[]
-      }
-      const songIds = data.reduce((prev,curr)=>{
+      select: {
+        id: true,
+      },
+    });
+    if (data.length == 0) {
+      return returnObjectFunction(false, "Songs doesnt exists...");
+    } else if (!user?.name) {
+      return returnObjectFunction(false, "User doesnt exists...");
+    } else {
+      const firstObj: { songid: number[] } = {
+        songid: [],
+      };
+      const songIds = data.reduce((prev, curr) => {
         prev.songid.push(curr.id);
         return prev;
       }, firstObj);
-  
-      const missingIds = song_ids.filter( (id)=> !songIds.songid.includes(id) );
-      
+
+      const missingIds = song_ids.filter((id) => !songIds.songid.includes(id));
+
       const result = await prisma.played_songs.findMany({
-        where:{
-          AND:[
-            {user_id:user_id},{song_id:{in:songIds.songid}}
-          ]
-          },
+        where: {
+          AND: [{ user_id: user_id }, { song_id: { in: songIds.songid } }],
+        },
       });
-  
-      if(result.length == 0 && missingIds.length != 0){
-  
-        return returnObjectFunction(true , `Record inserted Successfully by neglecting ${missingIds} as song of that id doesnt exist`, songIds.songid)
-      }
-      else if(result.length ==0){
-        return returnObjectFunction(true , `Record inserted Successfully `, songIds.songid)
-        
-      }
-      else{
-        const playedSongid = result.reduce((prev:number[],curr)=>{
-            prev.push(curr.song_id)
-          return prev
-        },[]);
-  
-        await prisma.played_songs.updateMany({where:{song_id:{in:playedSongid}},data:{count:{increment:1}}});
-  
-        const missingplayedSong = songIds.songid.filter((id)=> !playedSongid.includes(id));
- 
-        return returnObjectFunction(true, `Record inserted Successfully by increment count of song_id ${playedSongid}`,missingplayedSong )
-        
+
+      if (result.length == 0 && missingIds.length != 0) {
+        return returnObjectFunction(
+          true,
+          `Record inserted Successfully by neglecting ${missingIds} as song of that id doesnt exist`,
+          songIds.songid
+        );
+      } else if (result.length == 0) {
+        return returnObjectFunction(
+          true,
+          `Record inserted Successfully `,
+          songIds.songid
+        );
+      } else {
+        const playedSongid = result.reduce((prev: number[], curr) => {
+          prev.push(curr.song_id);
+          return prev;
+        }, []);
+
+        await prisma.played_songs.updateMany({
+          where: { song_id: { in: playedSongid } },
+          data: { count: { increment: 1 } },
+        });
+
+        const missingplayedSong = songIds.songid.filter(
+          (id) => !playedSongid.includes(id)
+        );
+
+        return returnObjectFunction(
+          true,
+          `Record inserted Successfully by increment count of song_id ${playedSongid}`,
+          missingplayedSong
+        );
       }
     }
-    
   } catch (error) {
     return returnObjectFunction(false, (error as Error).message);
   }
+};
 
+const checkForArtists = async(user_id:number, artist_id:number[]) =>{
+
+  try {
+
+    const user = await prisma.users.findFirst({ where: { id: user_id } });
+    const artists = await prisma.artists.findMany({where:{id:{in:artist_id}}});
+    
+    if(!user?.name){
+      return returnObjectFunction(false, "User doesnt exists...")
+    }
+    else if(artists.length ==0){
+      return returnObjectFunction(false, "Artists doesnt exists...")
+    }
+    else{
+
+      const artistIds = artists.reduce((prev:number[],curr)=>{
+        prev.push(curr.id);
+        return prev;
+      },[]);
+      
+      const missingids = artist_id.filter((id)=> !artistIds.includes(id));
+      
+      const followers = await prisma.followers.findMany({
+        where:{
+          AND:[{artist_id:{in:artistIds}}, {user_id:user_id}]
+        }
+      });
+      
+      if(followers.length == 0 && missingids.length != 0 ){
+        return returnObjectFunction(true, `Followers added successfully by neglecting ${missingids} as those followers did'nt exist`, artistIds);
+      }
+      else if(followers.length == 0){
+        return returnObjectFunction(true, `Followers added successfully `, artistIds);
+      }
+      else{
+        const followerId = followers.reduce((prev:number[],curr)=>{
+          prev.push(curr.artist_id);
+          return prev;
+        }, []);
+
+        const missingFollowerId = artistIds.filter((id)=> !followerId.includes(id));
+        if(missingFollowerId.length ==0){
+          return returnObjectFunction(false, 'Artist already exists' )
+        }
+        else{
+          return returnObjectFunction(true, `Artist followed successfully by neglecting ${followerId}s as they are already followed`,missingFollowerId );
+        }
+      }
+      
+
+    }
+
+
+  } catch (error) {
+    
+  }
+    
 
 }
 
-
-export { checkForUserAlreadyExist, artistCheck, userExistBasedeOnId, fetchSongsFromPlaylists, checkForPlayedSongs };
+export {
+  checkForUserAlreadyExist,
+  artistCheck,
+  userExistBasedeOnId,
+  fetchSongsFromPlaylists,
+  checkForPlayedSongs,
+  checkForArtists
+};

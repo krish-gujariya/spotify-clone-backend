@@ -2,7 +2,10 @@ import { PrismaClient } from "@prisma/client";
 import { logger } from "../utils/pino";
 import { IAlbumData, IGenres } from "../types/generalInterface";
 import { returnObjectFunction } from "../utils/usefullFunction";
-import { recordMessafeSuccess, recordMessageFail } from "../utils/generalVariables";
+import {
+  recordMessafeSuccess,
+  recordMessageFail,
+} from "../utils/generalVariables";
 
 const prisma = new PrismaClient();
 
@@ -177,12 +180,15 @@ const fetchAllSongData = async () => {
   }
 };
 
-const fetchPlayedSong = async () => {
+const fetchPlayedSong = async (id:number) => {
   try {
     const result = await prisma.played_songs.findMany({
+      
       select: {
+        
         users: {
           select: {
+            id:true,
             name: true,
           },
         },
@@ -195,14 +201,17 @@ const fetchPlayedSong = async () => {
       },
     });
 
-    if(result.length ==0){
-      return returnObjectFunction(false,recordMessageFail);
-    }
-    else{
-      return returnObjectFunction(true,`Played song ${recordMessafeSuccess}`, result)
+    if (result.length == 0) {
+      return returnObjectFunction(false, recordMessageFail);
+    } else {
+      return returnObjectFunction(
+        true,
+        `Played song ${recordMessafeSuccess}`,
+        result
+      );
     }
   } catch (error) {
-    return returnObjectFunction(false, (error as Error).message)
+    return returnObjectFunction(false, (error as Error).message);
   }
 };
 
@@ -226,16 +235,19 @@ const fetchLikedSongs = async (id: number) => {
         },
       },
     });
-    if(result.length== 0){
-      return returnObjectFunction(false,"NO result Found...")
-    }
-    else{
-      return returnObjectFunction(true,"Liked Songs retrived successfully...", result)
+    if (result.length == 0) {
+      return returnObjectFunction(false, "NO result Found...");
+    } else {
+      return returnObjectFunction(
+        true,
+        "Liked Songs retrived successfully...",
+        result
+      );
     }
   } catch (error) {
-    logger.error(error)
+    logger.error(error);
     return returnObjectFunction(false, (error as Error).message);
-    }
+  }
 };
 
 const fetchPlaylists = async (id: number) => {
@@ -259,49 +271,70 @@ const fetchPlaylists = async (id: number) => {
   }
 };
 
-
-const fetchPlaylistSongs =async (name:string) => {
-
+const fetchPlaylistSongs = async (name: string) => {
   try {
     const data = await prisma.playlist_Songs.findMany({
-      where:{
-        playlist:{
-          name:{
-            contains:name
-          }
-        }
-      },
-      select:{
-        playlist:{
-          select:{name:true}
+      where: {
+        playlist: {
+          name: {
+            contains: name,
+          },
         },
-        
-        songs:{
-          select:{
-            name:true,
-            duration:true,
-            genres:{
-              select:{
-                name:true
-              }
-            }
-          }
-        }
-      }
-    })
-    if(data.length ==0){
+      },
+      select: {
+        playlist: {
+          select: { name: true },
+        },
 
-      return returnObjectFunction(false,"No playlist found...");
-    }else{
-      
-      return returnObjectFunction(true,"Songs of playlist are successfully retrived...", data);
+        songs: {
+          select: {
+            name: true,
+            duration: true,
+            genres: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (data.length == 0) {
+      return returnObjectFunction(false, "No playlist found...");
+    } else {
+      return returnObjectFunction(
+        true,
+        "Songs of playlist are successfully retrived...",
+        data
+      );
     }
   } catch (error) {
     logger.error(error);
-    return returnObjectFunction(true, (error as Error).message)
+    return returnObjectFunction(true, (error as Error).message);
   }
-
 };
+
+const songsTotalListener = async () => {
+  try {
+    const result = await prisma.songs.findMany({
+      select: {
+        name: true,
+        duration: true,
+        played_songs: {
+          select: {
+            count: true,
+          },
+        },
+      },
+    });
+    return {success:true, message:`Songs listen ${recordMessafeSuccess}`, result:result}
+  } catch (error) {
+    logger.error(error);
+    return {success:true, message:(error as Error).name}
+  }
+};
+
+
 
 export {
   fetchAllGenres,
@@ -312,9 +345,9 @@ export {
   fetchPlayedSong,
   fetchLikedSongs,
   fetchPlaylists,
-  fetchPlaylistSongs
+  fetchPlaylistSongs,
+  songsTotalListener,
 };
-
 
 // Difference between include and select
 
@@ -325,4 +358,3 @@ export {
 // In  Include only relational table name can be specified, not filed of current table.
 
 // In select we can specifiy both reltational table anme as well as field can be specified.
-

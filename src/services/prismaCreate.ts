@@ -10,6 +10,7 @@ import { genPassword, returnObjectFunction } from "../utils/usefullFunction";
 import { successMessage } from "../utils/generalVariables";
 import {
   artistCheck,
+  checkForArtists,
   checkForPlayedSongs,
   checkForUserAlreadyExist,
   fetchSongsFromPlaylists,
@@ -150,38 +151,21 @@ const insertPlaylistData = async (name: string, id: number) => {
 
 const insertSongInPlaylist = async (playlistId: number, songIds: number[]) => {
   try {
-    const songData = await fetchSongsFromPlaylists(songIds, playlistId);
-    if (songData.success) {
-      const missingId = songIds.filter((element) => !(songData.result as number[]).includes(element));
-
-      if (missingId.length == 0) {
-        return returnObjectFunction(
-          false,
-          "Songs are already exists in playlists"
-        );
-      } else {
-        const data = await prisma.playlist_Songs.createMany({
-          data: missingId?.map((id) => ({
-            playlist_id: playlistId,
-            song_id: id,
-          }),
-          ),
-          skipDuplicates:true
-        });
-        
-        if(songIds.length == missingId.length){
-          return returnObjectFunction(true, "Songs successfully inserted in playlists...",data );
-        }
-        else{
-          return returnObjectFunction(true, `Songs are inserted by neglecting ${songData.result} as they are already inserted`)
-        }
-      }
-    } else {
-     return returnObjectFunction(false,songData.message);
+    const songData = await fetchSongsFromPlaylists(songIds, playlistId) as IPlayedSongData;
+    if(songData.success){
+      const data= await prisma.playlist_Songs.createMany({
+        data:songData.result.map((element)=> ({playlist_id:playlistId, song_id:element}))
+      })
+      return returnObjectFunction(true, songData.message, data)
     }
+    else{
+      return songData;
+    }
+
+
+    
   } catch (error) {
-    logger.error(error)
-    return returnObjectFunction(false, (error as Error).name);
+    return returnObjectFunction(false, (error as Error).message)
   }
 };
 
@@ -213,6 +197,29 @@ const insertPLayedSongs = async(user_id:number, song_ids:number[])=>{
 }
 
 
+const insertArtistFollowers = async(user_id:number, artist_id:number[])=>{
+
+  try {
+
+      const data = await checkForArtists(user_id, artist_id) as IPlayedSongData;
+      if(data.success){
+        const result = await prisma.followers.createMany({
+          data:data.result.map((element)=>({artist_id:element, user_id:user_id}))
+        })
+        return returnObjectFunction(true, data.message, result)
+        
+      }
+      else{
+        return data
+      }
+
+  } catch (error) {
+    return returnObjectFunction(false, (error as Error).message)
+    
+  }
+
+}
+
 export {
   insertUserData,
   insertArtistData,
@@ -220,5 +227,6 @@ export {
   insertSongData,
   insertPlaylistData,
   insertSongInPlaylist,
-  insertPLayedSongs
+  insertPLayedSongs,
+  insertArtistFollowers
 };

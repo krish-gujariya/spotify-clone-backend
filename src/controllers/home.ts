@@ -14,6 +14,7 @@ import {
 import {
   insertAlbumData,
   insertArtistData,
+  insertArtistFollowers,
   insertPLayedSongs,
   insertPlaylistData,
   insertSongData,
@@ -29,6 +30,7 @@ import {
   fetchPlayedSong,
   fetchPlaylists,
   fetchUserData,
+  songsTotalListener,
 } from "../services/prismaRead";
 import {
   updateAlbum,
@@ -37,7 +39,7 @@ import {
   updateUser,
 } from "../services/prismaUpdate";
 import { deleteUser } from "../services/prismaDelete";
-import { reducedPlaylistSongObject, reducingPlaydeSongs } from "./reduceObject";
+import { reducedPlaylistSongObject, reducedSongTotalListener, reducingPlaydeSongs } from "./reduceObject";
 
 const homePage = (req: Request, res: Response) => {
   try {
@@ -78,14 +80,20 @@ const createPlaylists = async (req: Request, res: Response) => {
 };
 
 const insertSongInPlaylistRecord = async (req: Request, res: Response) => {
-  const { playlist_id, song_id }:{playlist_id:number, song_id:number[]} = req.body;
-  const data = await insertSongInPlaylist(playlist_id,song_id);
+  const { id, idArray }:{id:number, idArray:number[]} = req.body;
+  const data = await insertSongInPlaylist(id,idArray);
   fetchResponseFunc(res, data, data.message);
 };
 
 const insertPlayedSongRecord =  async (req: Request, res: Response) => {
-  const { user_id, song_id }:{user_id:number, song_id:number[]} = req.body;
-  const data = await insertPLayedSongs(user_id,song_id);
+  const { id, idArray }:{id:number, idArray:number[]} = req.body;
+  const data = await insertPLayedSongs(id,idArray);
+  fetchResponseFunc(res, data, data.message);
+};
+
+const insertFollowers = async (req: Request, res: Response) => {
+  const { id, idArray }:{id:number, idArray:number[]} = req.body;
+  const data = await insertArtistFollowers(id,idArray);
   fetchResponseFunc(res, data, data.message);
 };
 
@@ -116,9 +124,16 @@ const showSongsData = async (req: Request, res: Response) => {
 };
 
 const showPlayedSongData = async (req: Request, res: Response) => {
-  const data = await reducingPlaydeSongs();
+  const {id}:IReqQuerryId = req.query as IReqQuerryId
+  const data = await reducingPlaydeSongs(parseInt(id));
   fetchResponseFunc(res, data);
 };
+
+const showTotalSongListen = async (req: Request, res: Response) => {
+  const data = await reducedSongTotalListener();
+  fetchResponseFunc(res, data, data.message);
+}
+
 const showLikedSongData = async (req: Request, res: Response) => {
   const {id}:IReqQuerryId = req.query as IReqQuerryId
   const data = await fetchLikedSongs(parseInt(id));
@@ -189,5 +204,7 @@ export {
   showPlaylistsData,
   insertSongInPlaylistRecord,
   showSongsOfPlaylist,
-  insertPlayedSongRecord
+  insertPlayedSongRecord,
+  showTotalSongListen,
+  insertFollowers
 };

@@ -45,8 +45,8 @@ const commonValidationOnUrl = (req: Request, res: Response, next: NextFunction) 
 };
 
 // Validation on Inserting in songs in playlist.
-const songInPlaylistValidate = (req: Request, res: Response, next: NextFunction) => {
-  const { error } = playlistSongsValidationSchema.validate(req.query);
+const songInPlaylistValidate = (req: Request, res: Response, next: NextFunction) => {  
+  const { error } = playlistSongsValidationSchema.validate(req.body);
 validationStatus(res, next, error);
 };
 
