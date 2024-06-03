@@ -1,31 +1,11 @@
 import express, { Router } from "express";
 import {
   homePage,
-  insertAlbum,
-  insertArtist,
-  insertSong,
-  insertUser,
-  showAlbumData,
-  showFetchedGenres,
-  showSongsData,
-  updateAlbumData,
-  updateArtistData,
-  updateSongData,
-  updateUserData,
-  showFetchArtist,
-  showFetcheUser,
-  deleteuser,
-  showPlayedSongData,
-  showLikedSongData,
-  createPlaylists,
-  showPlaylistsData,
-  insertSongInPlaylistRecord,
-  showSongsOfPlaylist,
-  insertPlayedSongRecord,
-  showTotalSongListen,
-  insertFollowers
 } from "../controllers/home";
 import { albumValidation, artistValidation, commonValidation, commonValidationOnUrl, songInPlaylistValidate, songValidation, userValidation } from "../middlewares/dataValidation";
+import { createPlaylists, insertAlbum, insertArtist, insertFollowers, insertPlayedSongRecord, insertSong, insertSongInPlaylistRecord, insertUser } from "../controllers/create";
+import { showAlbumData, showFetchArtist, showFetchedGenres, showFetcheUser, showLikedSongData, showPlayedSongData, showPlaylistsData, showSongsData, showSongsOfPlaylist, showTotalSongListen } from "../controllers/read";
+import { deleteuser, updateAlbumData, updateArtistData, updateSongData, updateUserData } from "../controllers/update";
 const router: Router = express.Router();
 
 router.get("/", homePage);
