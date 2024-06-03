@@ -5,5 +5,8 @@ const successMessage ={
     
 }
 
+const recordMessageFail = "Record not Found...";
 
-export {successMessage}
+const recordMessafeSuccess ='Record retrivied successfully'
+
+export {successMessage, recordMessageFail, recordMessafeSuccess}

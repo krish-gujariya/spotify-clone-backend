@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { logger } from "../utils/pino";
 import { IAlbumData, IGenres } from "../types/generalInterface";
 import { returnObjectFunction } from "../utils/usefullFunction";
+import { recordMessafeSuccess, recordMessageFail } from "../utils/generalVariables";
 
 const prisma = new PrismaClient();
 
@@ -194,9 +195,14 @@ const fetchPlayedSong = async () => {
       },
     });
 
-    return { success: true, result: result };
+    if(result.length ==0){
+      return returnObjectFunction(false,recordMessageFail);
+    }
+    else{
+      return returnObjectFunction(true,`Played song ${recordMessafeSuccess}`, result)
+    }
   } catch (error) {
-    return { success: false, result: null };
+    return returnObjectFunction(false, (error as Error).message)
   }
 };
 
@@ -220,11 +226,16 @@ const fetchLikedSongs = async (id: number) => {
         },
       },
     });
-
-    return { success: true, result: result };
+    if(result.length== 0){
+      return returnObjectFunction(false,"NO result Found...")
+    }
+    else{
+      return returnObjectFunction(true,"Liked Songs retrived successfully...", result)
+    }
   } catch (error) {
-    return { success: false, result: null };
-  }
+    logger.error(error)
+    return returnObjectFunction(false, (error as Error).message);
+    }
 };
 
 const fetchPlaylists = async (id: number) => {

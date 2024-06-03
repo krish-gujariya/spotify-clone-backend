@@ -1,8 +1,5 @@
 import { Request, Response } from "express";
-import joi from "joi";
-
 import { logger } from "../utils/pino";
-
 import {
   IAlbumData,
   IArtistData,
@@ -17,6 +14,7 @@ import {
 import {
   insertAlbumData,
   insertArtistData,
+  insertPLayedSongs,
   insertPlaylistData,
   insertSongData,
   insertSongInPlaylist,
@@ -30,7 +28,6 @@ import {
   fetchLikedSongs,
   fetchPlayedSong,
   fetchPlaylists,
-  fetchPlaylistSongs,
   fetchUserData,
 } from "../services/prismaRead";
 import {
@@ -40,7 +37,7 @@ import {
   updateUser,
 } from "../services/prismaUpdate";
 import { deleteUser } from "../services/prismaDelete";
-import { fetchSongsFromPlaylists } from "../services/fetchingQueryForCondition";
+import { reducedPlaylistSongObject, reducingPlaydeSongs } from "./reduceObject";
 
 const homePage = (req: Request, res: Response) => {
   try {
@@ -81,8 +78,14 @@ const createPlaylists = async (req: Request, res: Response) => {
 };
 
 const insertSongInPlaylistRecord = async (req: Request, res: Response) => {
-  const { playlist_id, song_id }:{playlist_id:number, song_id:number[]}  = req.body;
+  const { playlist_id, song_id }:{playlist_id:number, song_id:number[]} = req.body;
   const data = await insertSongInPlaylist(playlist_id,song_id);
+  fetchResponseFunc(res, data, data.message);
+};
+
+const insertPlayedSongRecord =  async (req: Request, res: Response) => {
+  const { user_id, song_id }:{user_id:number, song_id:number[]} = req.body;
+  const data = await insertPLayedSongs(user_id,song_id);
   fetchResponseFunc(res, data, data.message);
 };
 
@@ -113,13 +116,13 @@ const showSongsData = async (req: Request, res: Response) => {
 };
 
 const showPlayedSongData = async (req: Request, res: Response) => {
-  const data = await fetchPlayedSong();
+  const data = await reducingPlaydeSongs();
   fetchResponseFunc(res, data);
 };
 const showLikedSongData = async (req: Request, res: Response) => {
   const {id}:IReqQuerryId = req.query as IReqQuerryId
   const data = await fetchLikedSongs(parseInt(id));
-  fetchResponseFunc(res, data);
+  fetchResponseFunc(res, data, data.message);
 };
 
 const showPlaylistsData = async (req: Request, res: Response) => {
@@ -130,8 +133,8 @@ const showPlaylistsData = async (req: Request, res: Response) => {
 
 const showSongsOfPlaylist =  async (req: Request, res: Response) => {
   const name:string = req.query.name as string ;
-    const data = await fetchPlaylistSongs(name);
-    fetchResponseFunc(res, data, data.message);
+  const data = await reducedPlaylistSongObject(name);
+  fetchResponseFunc(res, data, data.message);
 };
 
 const updateUserData = async (req: Request, res: Response) => {
@@ -147,8 +150,7 @@ const updateArtistData = async (req: Request, res: Response) => {
 };
 
 const updateAlbumData = async (req: Request, res: Response) => {
-  const { name, id, artistId }: { name: string; id: number; artistId: number } =
-    req.body;
+  const { name, id, artistId }: { name: string; id: number; artistId: number } = req.body;
   const data = await updateAlbum(name, id, artistId);
   createUpdateCodeBlock(res, data);
 };
@@ -161,8 +163,6 @@ const updateSongData = async (req: Request, res: Response) => {
 
 const deleteuser = async (req: Request, res: Response) => {
   const { id }: { id: number } = req.body;
-  console.log(id);
-
   const data = await deleteUser(id);
   createUpdateCodeBlock(res, data);
 };
@@ -188,5 +188,6 @@ export {
   createPlaylists,
   showPlaylistsData,
   insertSongInPlaylistRecord,
-  showSongsOfPlaylist
+  showSongsOfPlaylist,
+  insertPlayedSongRecord
 };

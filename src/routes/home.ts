@@ -20,7 +20,8 @@ import {
   createPlaylists,
   showPlaylistsData,
   insertSongInPlaylistRecord,
-  showSongsOfPlaylist
+  showSongsOfPlaylist,
+  insertPlayedSongRecord
 } from "../controllers/home";
 import { albumValidation, artistValidation, commonValidation, commonValidationOnUrl, songInPlaylistValidate, songValidation, userValidation } from "../middlewares/dataValidation";
 const router: Router = express.Router();
@@ -34,6 +35,7 @@ router.post("/insertSong",songValidation, insertSong);
 router.post("/insertAlbums",albumValidation, insertAlbum);
 router.post("/insertPlaylists",commonValidation, createPlaylists);
 router.post("/insertSongsInPlaylists",songInPlaylistValidate, insertSongInPlaylistRecord);
+router.post("/insertPlayedSongList",songInPlaylistValidate, insertPlayedSongRecord);
 
 
 
@@ -47,6 +49,7 @@ router.get("/showPlayedSongs", showPlayedSongData);
 router.get("/showLikedSongs",commonValidationOnUrl, showLikedSongData);
 router.get("/showPlaylists",commonValidationOnUrl, showPlaylistsData);
 router.get("/showSongsOfPlaylists", showSongsOfPlaylist);
+router.get("/showTotalListnerOfSongs", showSongsOfPlaylist);
 
 
 // Update Operations

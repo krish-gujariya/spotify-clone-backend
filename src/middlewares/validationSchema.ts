@@ -33,13 +33,14 @@ const insertSongSchema = Joi.object().keys({
 
 const commonValidationSchema = Joi.object().keys({
   name: Joi.string(),
-  id: Joi.number().positive(),
+  id: Joi.number().positive().required(),
   artistId: Joi.number().positive(),
   user_id: Joi.number().positive()
 });
 
 const playlistSongsValidationSchema = Joi.object().keys({
   playlist_id: Joi.number().positive(),
+  user_id: Joi.number().positive(),
   song_id : Joi.array().items(Joi.number().positive())
 })
 

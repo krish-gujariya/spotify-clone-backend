@@ -26,7 +26,7 @@ const fetchResponseFunc = (
   message?:string
 ) => {
   if (data.success) {
-    res.json({ success: true, result: data.result, message:message });
+    res.json({ success: true, message:message,  result: data.result });
   } else {
     res.json({ success: false, message:message });
   }

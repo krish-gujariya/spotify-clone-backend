@@ -95,4 +95,76 @@ const fetchSongsFromPlaylists = async (
   }
 };
 
-export { checkForUserAlreadyExist, artistCheck, userExistBasedeOnId, fetchSongsFromPlaylists };
+
+const checkForPlayedSongs = async(user_id:number, song_ids:number[]) =>{
+
+  try {
+    const user = await prisma.users.findFirst({where:{id:user_id}});
+    const data = await prisma.songs.findMany({
+      where:{
+        id:{
+          in:song_ids
+        }
+      },
+      select:{
+        id:true
+      }
+    })
+    if(data.length==0  ){
+      return returnObjectFunction(false,"Songs doesnt exists...")
+    }
+    else if(!user?.name){
+      return returnObjectFunction(false, "User doesnt exists...")
+    }
+  
+    else{
+      const firstObj:{songid: number[]} = {
+        songid :[]
+      }
+      const songIds = data.reduce((prev,curr)=>{
+        prev.songid.push(curr.id);
+        return prev;
+      }, firstObj);
+  
+      const missingIds = song_ids.filter( (id)=> !songIds.songid.includes(id) );
+      
+      const result = await prisma.played_songs.findMany({
+        where:{
+          AND:[
+            {user_id:user_id},{song_id:{in:songIds.songid}}
+          ]
+          },
+      });
+  
+      if(result.length == 0 && missingIds.length != 0){
+  
+        return returnObjectFunction(true , `Record inserted Successfully by neglecting ${missingIds} as song of that id doesnt exist`, songIds.songid)
+      }
+      else if(result.length ==0){
+        return returnObjectFunction(true , `Record inserted Successfully `, songIds.songid)
+        
+      }
+      else{
+        const playedSongid = result.reduce((prev:number[],curr)=>{
+            prev.push(curr.song_id)
+          return prev
+        },[]);
+  
+        await prisma.played_songs.updateMany({where:{song_id:{in:playedSongid}},data:{count:{increment:1}}});
+  
+        const missingplayedSong = songIds.songid.filter((id)=> !playedSongid.includes(id));
+ 
+        return returnObjectFunction(true, `Record inserted Successfully by increment count of song_id ${playedSongid}`,missingplayedSong )
+        
+      }
+    }
+    
+  } catch (error) {
+    return returnObjectFunction(false, (error as Error).message);
+  }
+
+
+}
+
+
+export { checkForUserAlreadyExist, artistCheck, userExistBasedeOnId, fetchSongsFromPlaylists, checkForPlayedSongs };

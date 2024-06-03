@@ -10,6 +10,7 @@ import { genPassword, returnObjectFunction } from "../utils/usefullFunction";
 import { successMessage } from "../utils/generalVariables";
 import {
   artistCheck,
+  checkForPlayedSongs,
   checkForUserAlreadyExist,
   fetchSongsFromPlaylists,
   userExistBasedeOnId,
@@ -184,11 +185,40 @@ const insertSongInPlaylist = async (playlistId: number, songIds: number[]) => {
   }
 };
 
+
+// Interface for result of playedSong insertion record
+
+interface IPlayedSongData {
+  success:boolean,
+  message?:string
+  result:number[]
+}
+
+const insertPLayedSongs = async(user_id:number, song_ids:number[])=>{
+  try {
+        const data = await checkForPlayedSongs(user_id, song_ids) as IPlayedSongData;
+        if(data.success){
+          const result = await prisma.played_songs.createMany({
+            data: data.result.map((element)=>({user_id:user_id, song_id:element, count:1}))
+          })
+          return returnObjectFunction(true, data.message, result)
+        }
+        else{
+          return data;
+        }
+
+  } catch (error) {
+    return returnObjectFunction(false, (error as Error).message)
+  }
+}
+
+
 export {
   insertUserData,
   insertArtistData,
   insertAlbumData,
   insertSongData,
   insertPlaylistData,
-  insertSongInPlaylist
+  insertSongInPlaylist,
+  insertPLayedSongs
 };
