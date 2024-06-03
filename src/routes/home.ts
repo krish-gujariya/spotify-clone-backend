@@ -19,7 +19,8 @@ import {
   showLikedSongData,
   createPlaylists,
   showPlaylistsData,
-  insertSongInPlaylistRecord
+  insertSongInPlaylistRecord,
+  showSongsOfPlaylist
 } from "../controllers/home";
 import { albumValidation, artistValidation, commonValidation, commonValidationOnUrl, songInPlaylistValidate, songValidation, userValidation } from "../middlewares/dataValidation";
 const router: Router = express.Router();
@@ -45,7 +46,7 @@ router.post("/showUsers", showFetcheUser);
 router.get("/showPlayedSongs", showPlayedSongData);
 router.get("/showLikedSongs",commonValidationOnUrl, showLikedSongData);
 router.get("/showPlaylists",commonValidationOnUrl, showPlaylistsData);
-
+router.get("/showSongsOfPlaylists", showSongsOfPlaylist);
 
 
 // Update Operations

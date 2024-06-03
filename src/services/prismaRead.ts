@@ -249,6 +249,49 @@ const fetchPlaylists = async (id: number) => {
 };
 
 
+const fetchPlaylistSongs =async (name:string) => {
+
+  try {
+    const data = await prisma.playlist_Songs.findMany({
+      where:{
+        playlist:{
+          name:{
+            contains:name
+          }
+        }
+      },
+      select:{
+        playlist:{
+          select:{name:true}
+        },
+        
+        songs:{
+          select:{
+            name:true,
+            duration:true,
+            genres:{
+              select:{
+                name:true
+              }
+            }
+          }
+        }
+      }
+    })
+    if(data.length ==0){
+
+      return returnObjectFunction(false,"No playlist found...");
+    }else{
+      
+      return returnObjectFunction(true,"Songs of playlist are successfully retrived...", data);
+    }
+  } catch (error) {
+    logger.error(error);
+    return returnObjectFunction(true, (error as Error).message)
+  }
+
+};
+
 export {
   fetchAllGenres,
   fetchUserData,
@@ -258,4 +301,17 @@ export {
   fetchPlayedSong,
   fetchLikedSongs,
   fetchPlaylists,
+  fetchPlaylistSongs
 };
+
+
+// Difference between include and select
+
+// Select -> select only those field whose field are mentioned in select object.
+
+// Include -> select all field of current table and field of relational table .
+
+// In  Include only relational table name can be specified, not filed of current table.
+
+// In select we can specifiy both reltational table anme as well as field can be specified.
+

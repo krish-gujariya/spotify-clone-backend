@@ -30,6 +30,7 @@ import {
   fetchLikedSongs,
   fetchPlayedSong,
   fetchPlaylists,
+  fetchPlaylistSongs,
   fetchUserData,
 } from "../services/prismaRead";
 import {
@@ -39,6 +40,7 @@ import {
   updateUser,
 } from "../services/prismaUpdate";
 import { deleteUser } from "../services/prismaDelete";
+import { fetchSongsFromPlaylists } from "../services/fetchingQueryForCondition";
 
 const homePage = (req: Request, res: Response) => {
   try {
@@ -124,7 +126,12 @@ const showPlaylistsData = async (req: Request, res: Response) => {
   const {id}:IReqQuerryId = req.query as IReqQuerryId ;
     const data = await fetchPlaylists(parseInt(id));
     fetchResponseFunc(res, data, data.message);
+};
 
+const showSongsOfPlaylist =  async (req: Request, res: Response) => {
+  const name:string = req.query.name as string ;
+    const data = await fetchPlaylistSongs(name);
+    fetchResponseFunc(res, data, data.message);
 };
 
 const updateUserData = async (req: Request, res: Response) => {
@@ -180,5 +187,6 @@ export {
   showLikedSongData,
   createPlaylists,
   showPlaylistsData,
-  insertSongInPlaylistRecord
+  insertSongInPlaylistRecord,
+  showSongsOfPlaylist
 };
