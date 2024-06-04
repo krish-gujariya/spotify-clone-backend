@@ -12,6 +12,7 @@ import {
 import { fetchResponseFunc } from "../utils/usefullFunction";
 import { reducedPlaylistSongObject, reducedSongTotalListener, reduceFollowers, reducingPlaydeSongs } from "./reduceObject";
 import { IReqQuerryId } from "../types/generalInterface";
+import { reduceAlbumObject } from "../services/reduceOperation";
 
 
 const showFetchedGenres = async (req: Request, res: Response) => {
@@ -26,12 +27,14 @@ const showFetchedGenres = async (req: Request, res: Response) => {
   };
   
   const showFetchArtist = async (req: Request, res: Response) => {
-    const data = await fetchArtistData();
-    fetchResponseFunc(res, data);
+    const {id} = req.query as {id:string}
+    const data = await fetchArtistData(parseInt(id));
+    fetchResponseFunc(res, data, data.message);
   };
   
   const showAlbumData = async (req: Request, res: Response) => {
-    const data = await fetchAlbumData();
+    const {id} = req.query as {id:string}
+    const data = await reduceAlbumObject(parseInt(id));
     fetchResponseFunc(res, data);
   };
   
@@ -47,7 +50,9 @@ const showFetchedGenres = async (req: Request, res: Response) => {
   };
   
   const showTotalSongListen = async (req: Request, res: Response) => {
-    const data = await reducedSongTotalListener();
+    const queryObject = req.body ;
+    
+    const data = await reducedSongTotalListener(queryObject);
     fetchResponseFunc(res, data, data.message);
   }
   

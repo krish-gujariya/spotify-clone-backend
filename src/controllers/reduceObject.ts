@@ -1,4 +1,5 @@
 import { fetchPlayedSong, fetchPlaylistSongs, showFollowers, songsTotalListener } from "../services/prismaRead";
+import { logger } from "../utils/pino";
 import { returnObjectFunction } from "../utils/usefullFunction";
 
 // Fetche  song interface
@@ -156,8 +157,9 @@ interface ISongPlayedRecord {
   count:number
 
 }
-const reducedSongTotalListener = async()=>{
-  const data =await songsTotalListener();
+const reducedSongTotalListener = async(objectData:object)=>{
+  const data =await songsTotalListener(objectData);
+  
   if(data.success){
     const firstObj:ISongPlayedRecord[]= []
     const result = data.result?.reduce((prev,curr)=>{
@@ -245,3 +247,4 @@ const reduceFollowers = async(name:string)=>{
   }
 }
 export { reducedPlaylistSongObject, reducingPlaydeSongs, reducedSongTotalListener,  reduceFollowers};
+

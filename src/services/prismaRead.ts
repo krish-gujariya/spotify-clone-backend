@@ -94,33 +94,31 @@ const fetchAllGenres = async (): Promise<{
 };
 
 // Read Artist table
-const fetchArtistData = async (): Promise<{
-  success: boolean;
-  result: IArtistFetchedData[] | null;
-}> => {
+const fetchArtistData = async(id:number)=>{
   try {
-    const result = await prisma.artists.findMany({
-      select: {
-        name: true,
-        albums: {
-          select: {
-            name: true,
-            release_date: true,
-          },
-        },
-        created_at: true,
-      },
-    });
-    return { success: true, result: result };
+    const artists = await prisma.artists.findFirst({
+      where:{id:id},
+      select:{
+        name:true,
+      }
+    })
+    if(artists?.name){
+      return returnObjectFunction(true, `${artists.name} artist data retrived successfully`, artists);
+    }else{
+      return returnObjectFunction(false, `Artist doesn't found...`)
+    }
   } catch (error) {
     logger.error(error);
-    return { success: true, result: null };
+    return returnObjectFunction(false, (error as Error).name);
   }
-};
+}
 
-const fetchAlbumData = async () => {
+
+const fetchAlbumData = async (id:number) => {
   try {
-    const result = await prisma.albums.findMany({
+    
+    const result = await prisma.albums.findFirst({
+      where:{id:id},
       select: {
         name: true,
         release_date: true,
@@ -128,7 +126,7 @@ const fetchAlbumData = async () => {
           select: {
             name: true,
           },
-        },
+        },      
         songs: {
           select: {
             name: true,
@@ -142,6 +140,7 @@ const fetchAlbumData = async () => {
         },
       },
     });
+    
     return { result: result, success: true };
   } catch (error) {
     return { result: null, success: false };
@@ -314,9 +313,10 @@ const fetchPlaylistSongs = async (name: string) => {
   }
 };
 
-const songsTotalListener = async () => {
+const songsTotalListener = async (data:object) => {
   try {
     const result = await prisma.songs.findMany({
+      where:data,
       select: {
         name: true,
         duration: true,
@@ -327,6 +327,7 @@ const songsTotalListener = async () => {
         },
       },
     });
+    
     return {success:true, message:`Songs listen ${recordMessafeSuccess}`, result:result}
   } catch (error) {
     logger.error(error);

@@ -227,7 +227,7 @@ const checkForArtists = async(user_id:number, artist_id:number[]) =>{
       });
       
       if(followers.length == 0 && missingids.length != 0 ){
-        return returnObjectFunction(true, `Followers added successfully by neglecting ${missingids} as those followers did'nt exist`, artistIds);
+        return returnObjectFunction(true, `Followers added successfully by neglecting ${missingids} as those artists did'nt exist`, artistIds);
       }
       else if(followers.length == 0){
         return returnObjectFunction(true, `Followers added successfully `, artistIds);
@@ -246,11 +246,7 @@ const checkForArtists = async(user_id:number, artist_id:number[]) =>{
           return returnObjectFunction(true, `Artist followed successfully by neglecting ${followerId}s as they are already followed`,missingFollowerId );
         }
       }
-      
-
     }
-
-
   } catch (error) {
     
   }
@@ -290,10 +286,8 @@ const checkLikedSong = async(user_id:number, songs_ids:number[]) =>{
           else{
             return returnObjectFunction(true, `Songs are liked by neglecting ${playedSongIdArray} as they are already liked`, missingPlayedSongs);
           }
-      }
-      
+      }      
     }
-
   } catch (error) {
     return returnObjectFunction(false, (error as Error).name);
   }

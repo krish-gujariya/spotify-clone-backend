@@ -7,6 +7,8 @@ import {
   insertSongSchema,
   insertUserSchema,
   playlistSongsValidationSchema,
+  userArtistIdValidationSchema,
+  userSongsIdSchema,
 } from "./validationSchema";
 
 // User Validation
@@ -50,6 +52,16 @@ const songInPlaylistValidate = (req: Request, res: Response, next: NextFunction)
 validationStatus(res, next, error);
 };
 
+const userArtistValidation = (req: Request, res: Response, next: NextFunction) => {  
+  const { error } = userArtistIdValidationSchema.validate(req.body);
+validationStatus(res, next, error);
+};
+
+const userSongValidation =  (req: Request, res: Response, next: NextFunction) => {  
+  const { error } = userSongsIdSchema.validate(req.body);
+validationStatus(res, next, error);
+};
+
 export {
   userValidation,
   artistValidation,
@@ -57,5 +69,7 @@ export {
   songValidation,
   commonValidation,
   commonValidationOnUrl,
-  songInPlaylistValidate
+  songInPlaylistValidate,
+  userArtistValidation,
+  userSongValidation
 };

@@ -45,11 +45,26 @@ const playlistSongsValidationSchema = Joi.object().keys({
   idArray : Joi.array().items(Joi.number().positive()).required()
 })
 
+// validation schema for artist_id and user_id
+const userArtistIdValidationSchema = Joi.object().keys({
+  user_id : Joi.number().positive().required(),
+  artist_id : Joi.number().positive().required(),
+
+})
+
+//  validation schema for user_id and songs_id
+const userSongsIdSchema = Joi.object().keys({
+  user_id : Joi.number().positive().required(),
+  song_id : Joi.number().positive().required(),
+})
+
 export {
   insertArtistSchema,
   insertUserSchema,
   insertAlbumSchema,
   insertSongSchema,
   commonValidationSchema,
-  playlistSongsValidationSchema
+  playlistSongsValidationSchema,
+  userArtistIdValidationSchema,
+  userSongsIdSchema
 };

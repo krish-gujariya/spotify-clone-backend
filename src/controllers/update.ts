@@ -27,11 +27,6 @@ const updateUserData = async (req: Request, res: Response) => {
     fetchResponseFunc(res, data);
   };
   
-  // const deleteuser = async (req: Request, res: Response) => {
-  //   const { id }: { id: number } = req.body;
-  //   const data = await deleteUser(id);
-  //   fetchResponseFunc(res, data);
-  // };
   
   export {
     
