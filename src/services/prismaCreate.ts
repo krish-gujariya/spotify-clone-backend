@@ -13,6 +13,7 @@ import {
   checkForArtists,
   checkForPlayedSongs,
   checkForUserAlreadyExist,
+  checkLikedSong,
   fetchSongsFromPlaylists,
   userExistBasedeOnId,
 } from "./fetchingQueryForCondition";
@@ -221,6 +222,27 @@ const insertArtistFollowers = async(user_id:number, artist_id:number[])=>{
 
 }
 
+const insertLikedSongData = async(user_id:number, song_id:number[]) =>{
+  try {
+      
+      const data = await checkLikedSong(user_id,song_id) as IPlayedSongData;
+            
+      if(data.success){
+        const result = await prisma.likes.createMany({
+          data:data.result.map((element)=>({song_id:element, user_id:user_id}))
+        })
+        return returnObjectFunction(true, data.message, result);
+      }
+      else{
+        return data
+      }
+
+  } catch (error) {
+      logger.error(error)
+      return returnObjectFunction(false, (error as Error).name);   
+  }
+}
+
 export {
   insertUserData,
   insertArtistData,
@@ -229,5 +251,6 @@ export {
   insertPlaylistData,
   insertSongInPlaylist,
   insertPLayedSongs,
-  insertArtistFollowers
+  insertArtistFollowers,
+  insertLikedSongData
 };

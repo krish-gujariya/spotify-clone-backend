@@ -3,7 +3,7 @@ import {
   homePage,
 } from "../controllers/home";
 import { albumValidation, artistValidation, commonValidation, commonValidationOnUrl, songInPlaylistValidate, songValidation, userValidation } from "../middlewares/dataValidation";
-import { createPlaylists, insertAlbum, insertArtist, insertFollowers, insertPlayedSongRecord, insertSong, insertSongInPlaylistRecord, insertUser } from "../controllers/create";
+import { createPlaylists, insertAlbum, insertArtist, insertFollowers, insertLikesRecord, insertPlayedSongRecord, insertSong, insertSongInPlaylistRecord, insertUser } from "../controllers/create";
 import { showAlbumData, showFetchArtist, showFetchedGenres, showFetcheUser, showFollowersList, showLikedSongData, showPlayedSongData, showPlaylistsData, showSongsData, showSongsOfPlaylist, showTotalSongListen } from "../controllers/read";
 import {  updateAlbumData, updateArtistData, updateSongData, updateUserData } from "../controllers/update";
 const router: Router = express.Router();
@@ -19,6 +19,7 @@ router.post("/insertPlaylists",commonValidation, createPlaylists);
 router.post("/insertSongsInPlaylists",songInPlaylistValidate, insertSongInPlaylistRecord);
 router.post("/insertPlayedSongList",songInPlaylistValidate, insertPlayedSongRecord);
 router.post("/insertFollowers",songInPlaylistValidate, insertFollowers);
+router.post("/insertLikedSongs",songInPlaylistValidate, insertLikesRecord);
 
 
 

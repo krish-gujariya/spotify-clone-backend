@@ -18,6 +18,7 @@ import {
   insertSongData,
   insertSongInPlaylist,
   insertUserData,
+  insertLikedSongData
 } from "../services/prismaCreate";
 
 const insertUser = async (req: Request, res: Response): Promise<void> => {
@@ -68,6 +69,12 @@ const insertFollowers = async (req: Request, res: Response) => {
   fetchResponseFunc(res, data, data.message);
 };
 
+const insertLikesRecord = async (req: Request, res: Response) => {
+  const { id, idArray }: { id: number; idArray: number[] } = req.body;
+  const data = await insertLikedSongData(id, idArray);
+  fetchResponseFunc(res, data, data.message);
+};
+
 export {
   insertUser,
   insertArtist,
@@ -77,4 +84,5 @@ export {
   insertSongInPlaylistRecord,
   insertPlayedSongRecord,
   insertFollowers,
+  insertLikesRecord
 };

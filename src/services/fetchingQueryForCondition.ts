@@ -258,11 +258,53 @@ const checkForArtists = async(user_id:number, artist_id:number[]) =>{
 
 }
 
+const checkLikedSong = async(user_id:number, songs_ids:number[]) =>{
+  try {
+
+    const user = await prisma.users.findFirst({where:{id:user_id}});
+    const songs = await prisma.songs.findMany({where:{id:{in:songs_ids}}});
+
+    if(songs.length ==0){ return returnObjectFunction(false, 'Songs doesnt exists...')}
+    else if(!user?.id){return returnObjectFunction(false, `User doesn't exists...`)}
+    else{
+      const songIdArray = songs.reduce((prev:number[],curr)=> {prev.push(curr.id); return prev;},[]);
+      const missingSongIdArray = songs_ids.filter((id)=> !songIdArray.includes(id));
+
+      const playedSongsId = await prisma.likes.findMany({where:{
+        AND:[{user_id:user_id}, {song_id:{in:songIdArray}}]
+      }});
+      
+      if(playedSongsId.length==0 && missingSongIdArray.length==0){
+        return returnObjectFunction(true, `Liked Songs data successfully inserted...`, songIdArray)
+      }
+      else if(playedSongsId.length==0 && missingSongIdArray.length != 0)  {
+        return returnObjectFunction(true, `Record are inserted by neglecting ${missingSongIdArray} as this id song does'nt exist`, songIdArray);
+      }
+      else{
+        const playedSongIdArray = playedSongsId.reduce((prev:number[],curr)=>{prev.push(curr.song_id); return prev;},[])
+        const missingPlayedSongs =songIdArray.filter((id)=>!playedSongIdArray.includes(id));
+
+          if(missingPlayedSongs.length ==0){
+            return returnObjectFunction(false, 'Songs are already liked...');
+          }
+          else{
+            return returnObjectFunction(true, `Songs are liked by neglecting ${playedSongIdArray} as they are already liked`, missingPlayedSongs);
+          }
+      }
+      
+    }
+
+  } catch (error) {
+    return returnObjectFunction(false, (error as Error).name);
+  }
+}
+
 export {
   checkForUserAlreadyExist,
   artistCheck,
   userExistBasedeOnId,
   fetchSongsFromPlaylists,
   checkForPlayedSongs,
-  checkForArtists
+  checkForArtists,
+  checkLikedSong
 };
