@@ -283,7 +283,7 @@ const fetchPlaylistSongs = async (name: string) => {
       },
       select: {
         playlist: {
-          select: { name: true },
+          select: { name: true, id:true },
         },
 
         songs: {

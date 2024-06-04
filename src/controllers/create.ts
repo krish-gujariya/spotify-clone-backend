@@ -7,7 +7,6 @@ import {
 } from "../types/generalInterface";
 
 import {
-  createUpdateCodeBlock,
   fetchResponseFunc,
 } from "../utils/usefullFunction";
 import {
@@ -36,13 +35,13 @@ const insertArtist = async (req: Request, res: Response): Promise<void> => {
 const insertAlbum = async (req: Request, res: Response) => {
   const albumData: IAlbumData = req.body;
   const data = await insertAlbumData(albumData);
-  createUpdateCodeBlock(res, data);
+  fetchResponseFunc(res, data, data.message);
 };
 
 const insertSong = async (req: Request, res: Response) => {
   const songData: ISongInsertdata = req.body;
   const data = await insertSongData(songData);
-  createUpdateCodeBlock(res, data);
+  fetchResponseFunc(res, data, data.message);
 };
 
 const createPlaylists = async (req: Request, res: Response) => {

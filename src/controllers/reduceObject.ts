@@ -16,6 +16,7 @@ interface IFetchedSong {
 interface ISongsOfPlaylists {
   playlist: {
     name: string;
+    id:number
   };
   songs: IFetchedSong;
 }
@@ -23,6 +24,7 @@ interface ISongsOfPlaylists {
 interface IAccumulator {
   playlist: {
     name: string;
+    id:number
   };
 
   songs: IFetchedSong[];
@@ -42,13 +44,14 @@ const reducedPlaylistSongObject = async (name: string) => {
       {
         playlist: {
           name: data.result[0].playlist.name,
+          id:data.result[0].playlist.id
         },
         songs: [],
       },
     ];
     let i = 0;
     const result = data.result.reduce((prev, cur) => {
-      if (prev[i].playlist.name == cur.playlist.name) {
+      if (prev[i].playlist.id == cur.playlist.id) {
         prev[i].songs.push(cur.songs);
       } else {
         const pushObj: IAccumulator = {

@@ -5,7 +5,7 @@ import {
 import { albumValidation, artistValidation, commonValidation, commonValidationOnUrl, songInPlaylistValidate, songValidation, userValidation } from "../middlewares/dataValidation";
 import { createPlaylists, insertAlbum, insertArtist, insertFollowers, insertPlayedSongRecord, insertSong, insertSongInPlaylistRecord, insertUser } from "../controllers/create";
 import { showAlbumData, showFetchArtist, showFetchedGenres, showFetcheUser, showFollowersList, showLikedSongData, showPlayedSongData, showPlaylistsData, showSongsData, showSongsOfPlaylist, showTotalSongListen } from "../controllers/read";
-import { deleteuser, updateAlbumData, updateArtistData, updateSongData, updateUserData } from "../controllers/update";
+import {  updateAlbumData, updateArtistData, updateSongData, updateUserData } from "../controllers/update";
 const router: Router = express.Router();
 
 router.get("/", homePage);
@@ -42,7 +42,6 @@ router.post("/updateArtist",commonValidation, updateArtistData);
 router.post("/updateUser",commonValidation, updateUserData);
 router.post("/updateAlbum",commonValidation, updateAlbumData);
 
-router.post("/deleteUser", deleteuser);
 
 
 

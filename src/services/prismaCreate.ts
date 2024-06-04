@@ -7,7 +7,7 @@ import {
   IUserData,
 } from "../types/generalInterface";
 import { genPassword, returnObjectFunction } from "../utils/usefullFunction";
-import { successMessage } from "../utils/generalVariables";
+import { recordMessafeSuccess, successMessage } from "../utils/generalVariables";
 import {
   artistCheck,
   checkForArtists,
@@ -95,10 +95,10 @@ const insertAlbumData = async (albumData: IAlbumData) => {
     await prisma.albums.create({
       data: albumData,
     });
-    return { success: true };
+    return returnObjectFunction(true, recordMessafeSuccess)
   } catch (error) {
     logger.error(error);
-    return { success: false };
+    return returnObjectFunction(false, (error as Error).message)
   }
 };
 
@@ -124,10 +124,11 @@ const insertSongData = async (songObject: ISongInsertdata) => {
         },
       },
     });
-    return { success: true };
+    return returnObjectFunction(true, recordMessafeSuccess)
   } catch (error) {
     logger.error(error);
-    return { success: false };
+    return returnObjectFunction(false, (error as Error).name);
+    
   }
 };
 

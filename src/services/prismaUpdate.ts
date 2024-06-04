@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { logger } from "../utils/pino";
-import { genPassword } from "../utils/usefullFunction";
+import { genPassword, returnObjectFunction } from "../utils/usefullFunction";
 
 const prisma = new PrismaClient();
 
@@ -14,10 +14,10 @@ const updateUser = async (name: string, id: number) => {
         name: name,
       },
     });
-    return { success: true };
+    return returnObjectFunction(true, 'User data updated successfully...')
   } catch (error) {
     logger.error(error);
-    return { success: false };
+    return returnObjectFunction(false, (error as Error).message);
   }
 };
 
@@ -31,10 +31,10 @@ const updateArtist = async (name: string, id: number) => {
         name: name,
       },
     });
-    return { success: true };
+    return returnObjectFunction(true, `Artists data updated successfully...`)
   } catch (error) {
     logger.error(error);
-    return { success: false };
+    return returnObjectFunction(false, (error as Error).message)
   }
 };
 
@@ -49,10 +49,10 @@ const updateAlbum = async (name: string, id: number, artistId: number) => {
         artist_id: artistId,
       },
     });
-    return { success: true };
+    return returnObjectFunction(true, `Albums data updated successfully...`)
   } catch (error) {
     logger.error(error);
-    return { success: false };
+    return returnObjectFunction(false, (error as Error).message)
   }
 };
 
@@ -67,10 +67,10 @@ const updateSong = async (name: string, id: number) => {
       },
     });
 
-    return { success: true };
+    return returnObjectFunction(true, `Songs data updated successfully...`)
   } catch (error) {
     logger.error(error);
-    return { success: false };
+    return returnObjectFunction(false, (error as Error).message)
   }
 };
 
