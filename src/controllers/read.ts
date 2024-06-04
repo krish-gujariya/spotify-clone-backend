@@ -7,9 +7,10 @@ import {
     fetchLikedSongs,
     fetchPlaylists,
     fetchUserData,
+    showFollowers,
   } from "../services/prismaRead";
 import { fetchResponseFunc } from "../utils/usefullFunction";
-import { reducedPlaylistSongObject, reducedSongTotalListener, reducingPlaydeSongs } from "./reduceObject";
+import { reducedPlaylistSongObject, reducedSongTotalListener, reduceFollowers, reducingPlaydeSongs } from "./reduceObject";
 import { IReqQuerryId } from "../types/generalInterface";
 
 
@@ -68,6 +69,13 @@ const showFetchedGenres = async (req: Request, res: Response) => {
     fetchResponseFunc(res, data, data.message);
   };
   
+  const showFollowersList = async (req: Request, res: Response) => {
+    const name:string = req.query.name as string ;
+    const data = await reduceFollowers(name);
+    fetchResponseFunc(res, data, data.message);
+  };
+
+
   export{
     showFetchedGenres,
   showFetcheUser,
@@ -79,4 +87,5 @@ const showFetchedGenres = async (req: Request, res: Response) => {
   showPlaylistsData,
   showSongsOfPlaylist,
   showTotalSongListen,
+  showFollowersList
   }

@@ -335,6 +335,25 @@ const songsTotalListener = async () => {
 };
 
 
+const showFollowers = async(name:string)=>{
+  try {
+    const data = await prisma.followers.findMany({
+      where:{artists:{name:{contains:name}}},
+      select:{
+        artists:{select:{name:true, id:true}},
+        users:{select:{name:true}}
+      }
+    })
+    if(data.length ==0){
+      return  returnObjectFunction(false,'Followers not found...')
+    }
+    else{
+      return returnObjectFunction(true, `Follower Retrived successfully....`, data)
+    }
+  } catch (error) {
+    return returnObjectFunction(false,(error as Error).message);
+  }
+}
 
 export {
   fetchAllGenres,
@@ -347,6 +366,7 @@ export {
   fetchPlaylists,
   fetchPlaylistSongs,
   songsTotalListener,
+  showFollowers
 };
 
 // Difference between include and select

@@ -4,7 +4,7 @@ import {
 } from "../controllers/home";
 import { albumValidation, artistValidation, commonValidation, commonValidationOnUrl, songInPlaylistValidate, songValidation, userValidation } from "../middlewares/dataValidation";
 import { createPlaylists, insertAlbum, insertArtist, insertFollowers, insertPlayedSongRecord, insertSong, insertSongInPlaylistRecord, insertUser } from "../controllers/create";
-import { showAlbumData, showFetchArtist, showFetchedGenres, showFetcheUser, showLikedSongData, showPlayedSongData, showPlaylistsData, showSongsData, showSongsOfPlaylist, showTotalSongListen } from "../controllers/read";
+import { showAlbumData, showFetchArtist, showFetchedGenres, showFetcheUser, showFollowersList, showLikedSongData, showPlayedSongData, showPlaylistsData, showSongsData, showSongsOfPlaylist, showTotalSongListen } from "../controllers/read";
 import { deleteuser, updateAlbumData, updateArtistData, updateSongData, updateUserData } from "../controllers/update";
 const router: Router = express.Router();
 
@@ -33,6 +33,7 @@ router.get("/showLikedSongs",commonValidationOnUrl, showLikedSongData);
 router.get("/showPlaylists",commonValidationOnUrl, showPlaylistsData);
 router.get("/showSongsOfPlaylists", showSongsOfPlaylist);
 router.get("/showTotalListnerOfSongs", showTotalSongListen);
+router.get("/showFollowerList", showFollowersList);
 
 
 // Update Operations

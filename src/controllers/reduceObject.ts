@@ -1,4 +1,4 @@
-import { fetchPlayedSong, fetchPlaylistSongs, songsTotalListener } from "../services/prismaRead";
+import { fetchPlayedSong, fetchPlaylistSongs, showFollowers, songsTotalListener } from "../services/prismaRead";
 import { returnObjectFunction } from "../utils/usefullFunction";
 
 // Fetche  song interface
@@ -181,4 +181,64 @@ const reducedSongTotalListener = async()=>{
 
 }
 
-export { reducedPlaylistSongObject, reducingPlaydeSongs, reducedSongTotalListener };
+// Interface for reduced follower accumulator
+interface IFollowerAccumulator {
+  artist:{
+    name:string,
+    id:number
+    users:{name:string}[]
+  }
+}
+
+// interface for data fetched from showFollower query.
+interface IFetchFollowers {
+  artists:{
+    name:string,
+    id:number
+  },
+  users:{
+    name:string
+  }
+}
+
+// Result format interface 
+interface IResultFollowers{
+  success:boolean,
+  message?:string,
+  result:IFetchFollowers[]
+}
+const reduceFollowers = async(name:string)=>{
+  const data = await showFollowers(name) as IResultFollowers;
+  if(data.success){
+    const firstObj:IFollowerAccumulator[] =[{
+      artist:{
+        name:data.result[0].artists.name,
+        id: data.result[0].artists.id,
+        users:[]
+      }
+    }]
+    let i = 0;
+    const result =data.result?.reduce((prev,cur)=>{
+      if(cur.artists.id == prev[i].artist.id){
+        prev[i].artist.users.push(cur.users);
+      }
+      else{
+        const pushObj ={
+          artist:{
+            name:cur.artists.name,
+            id: cur.artists.id,
+            users:[cur.users]
+          }
+        }
+        prev.push(pushObj);
+        i++;
+      }
+      return prev
+    }, firstObj);
+
+      return returnObjectFunction(true,data.message, result);
+  }else{
+    return data;
+  }
+}
+export { reducedPlaylistSongObject, reducingPlaydeSongs, reducedSongTotalListener,  reduceFollowers};
