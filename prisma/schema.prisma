@@ -14,7 +14,7 @@ generator client {
 }
 
 model Users {
-  id           Int            @id @default(autoincrement()) 
+  id           Int            @id @default(autoincrement())
   name         String         @db.VarChar(50)
   email        String         @unique @db.VarChar(50)
   password     String         @db.VarChar(100)
@@ -44,12 +44,12 @@ model Artists {
 }
 
 model Genres {
-  id            Int             @id @default(autoincrement())
-  name          String          @unique @db.VarChar(50)
-  created_at    DateTime        @default(now())
-  updated_at    DateTime        @updatedAt
-  deleted_at    DateTime?
-  songs         Songs[]
+  id         Int       @id @default(autoincrement())
+  name       String    @unique @db.VarChar(50)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+  songs      Songs[]
 }
 
 model Albums {
@@ -61,15 +61,15 @@ model Albums {
   created_at   DateTime  @default(now())
   updated_at   DateTime  @updatedAt
   deleted_at   DateTime?
-  artist       Artists   @relation(fields: [artist_id], references: [id], onDelete:Cascade)
+  artist       Artists   @relation(fields: [artist_id], references: [id], onDelete: Cascade)
   songs        Songs[]
 }
 
 model Artists_songs {
   artist_id Int
   song_id   Int
-  artists   Artists @relation(fields: [artist_id], references: [id], onDelete:Cascade)
-  songs     Songs   @relation(fields: [song_id], references: [id], onDelete:Cascade)
+  artists   Artists @relation(fields: [artist_id], references: [id], onDelete: Cascade)
+  songs     Songs   @relation(fields: [song_id], references: [id], onDelete: Cascade)
 
   @@id([artist_id, song_id])
 }
@@ -79,13 +79,14 @@ model Songs {
   album_id       Int?
   genre_id       Int
   name           String           @db.VarChar(50)
+  plays          Int              @default(0)
   duration       Float
   path           String?          @db.VarChar(255)
   created_at     DateTime         @default(now())
   updated_at     DateTime         @updatedAt
   deleted_at     DateTime?
-  genres         Genres           @relation(fields: [genre_id], references: [id], onDelete:Cascade)
-  albums         Albums?          @relation(fields: [album_id], references: [id], onDelete:Cascade)
+  genres         Genres           @relation(fields: [genre_id], references: [id], onDelete: Cascade)
+  albums         Albums?          @relation(fields: [album_id], references: [id], onDelete: Cascade)
   playlist_songs Playlist_Songs[]
   likes          Likes[]
   played_songs   Played_songs[]
@@ -102,7 +103,7 @@ model Playlists {
   created_at     DateTime         @default(now())
   updated_at     DateTime         @updatedAt
   deleted_at     DateTime?
-  users          Users            @relation(fields: [user_id], references: [id], onDelete:Cascade)
+  users          Users            @relation(fields: [user_id], references: [id], onDelete: Cascade)
   playlist_songs Playlist_Songs[]
 }
 
@@ -112,8 +113,8 @@ model Playlist_Songs {
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
   deleted_at  DateTime?
-  songs       Songs     @relation(fields: [song_id], references: [id], onDelete:Cascade)
-  playlist    Playlists @relation(fields: [playlist_id], references: [id], onDelete:Cascade)
+  songs       Songs     @relation(fields: [song_id], references: [id], onDelete: Cascade)
+  playlist    Playlists @relation(fields: [playlist_id], references: [id], onDelete: Cascade)
 
   @@id([playlist_id, song_id])
 }
@@ -124,8 +125,8 @@ model Followers {
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
   deleted_at DateTime?
-  users      Users     @relation(fields: [user_id], references: [id], onDelete:Cascade)
-  artists    Artists   @relation(fields: [artist_id], references: [id], onDelete:Cascade)
+  users      Users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  artists    Artists   @relation(fields: [artist_id], references: [id], onDelete: Cascade)
 
   @@id([user_id, artist_id])
 }
@@ -136,8 +137,8 @@ model Likes {
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
   deleted_at DateTime?
-  users      Users     @relation(fields: [user_id], references: [id], onDelete:Cascade)
-  songs      Songs     @relation(fields: [song_id], references: [id], onDelete:Cascade)
+  users      Users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  songs      Songs     @relation(fields: [song_id], references: [id], onDelete: Cascade)
 
   @@id([user_id, song_id])
 }
@@ -149,8 +150,8 @@ model Played_songs {
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
   deleted_at DateTime?
-  users      Users     @relation(fields: [user_id], references: [id], onDelete:Cascade)
-  songs      Songs     @relation(fields: [song_id], references: [id], onDelete:Cascade)
+  users      Users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  songs      Songs     @relation(fields: [song_id], references: [id], onDelete: Cascade)
 
   @@id([user_id, song_id])
 }

@@ -29,7 +29,7 @@ router.get("/showGenre", showFetchedGenres);
 router.get("/showAlbum", showAlbumData);
 router.get("/showSongs", showSongsData);
 router.get("/showArtists", showFetchArtist);
-router.post("/showUsers", showFetcheUser);
+router.get("/showUsers", showFetcheUser);
 router.get("/showPlayedSongs", showPlayedSongData);
 router.get("/showLikedSongs",commonValidationOnUrl, showLikedSongData);
 router.get("/showPlaylists",commonValidationOnUrl, showPlaylistsData);

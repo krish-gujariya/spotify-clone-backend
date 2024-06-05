@@ -52,7 +52,7 @@ readUserUniqueData();
 // Read user Data
 const fetchUserData = async (
   id: number
-): Promise<{ success: boolean; result: IUserFetchedData | null }> => {
+) => {
   try {
     const result = await prisma.users.findFirst({
       where: {
@@ -62,11 +62,17 @@ const fetchUserData = async (
         name: true,
         email: true,
         dob: true,
+        followers:{
+          select:{
+            artists:{select:{name:true}}
+          }
+        },
+        playlists:{select:{name:true}}
       },
     });
     return { success: true, result: result };
   } catch (error) {
-    return { success: false, result: null };
+    return { success: false,message:(error as Error).name, result: null };
   }
 };
 
@@ -94,31 +100,29 @@ const fetchAllGenres = async (): Promise<{
 };
 
 // Read Artist table
-const fetchArtistData = async(id:number)=>{
+const fetchArtistData = async (id: number) => {
   try {
     const artists = await prisma.artists.findFirst({
-      where:{id:id},
-      select:{
-        name:true,
-      }
-    })
-    if(artists?.name){
-      return returnObjectFunction(true, `${artists.name} artist data retrived successfully`, artists);
-    }else{
-      return returnObjectFunction(false, `Artist doesn't found...`)
+      where: { id: id },
+      select: {
+        name: true,
+      },
+    });
+    if (artists?.name) {
+      return {success:true, message:`${artists.name} data retrived successfully...`, result:artists}
+    } else {
+      return {success:false, message:`Artist doesn't found...`}
     }
   } catch (error) {
     logger.error(error);
-    return returnObjectFunction(false, (error as Error).name);
+    return {success:false, message:(error as Error).name}
   }
-}
+};
 
-
-const fetchAlbumData = async (id:number) => {
+const fetchAlbumData = async (id: number) => {
   try {
-    
     const result = await prisma.albums.findFirst({
-      where:{id:id},
+      where: { id: id },
       select: {
         name: true,
         release_date: true,
@@ -126,21 +130,27 @@ const fetchAlbumData = async (id:number) => {
           select: {
             name: true,
           },
-        },      
+        },
         songs: {
           select: {
             name: true,
+            plays:true,
             duration: true,
-            genres: {
-              select: {
-                name: true,
-              },
-            },
+            artists_songs:{
+              select:{
+              artists:{
+                select:{
+                  name:true
+                }
+              }
+              }
+            }
           },
+          orderBy:{plays:"desc"}
         },
       },
     });
-    
+
     return { result: result, success: true };
   } catch (error) {
     return { result: null, success: false };
@@ -179,15 +189,13 @@ const fetchAllSongData = async () => {
   }
 };
 
-const fetchPlayedSong = async (id:number) => {
+const fetchPlayedSong = async (id: number) => {
   try {
     const result = await prisma.played_songs.findMany({
-      
       select: {
-        
         users: {
           select: {
-            id:true,
+            id: true,
             name: true,
           },
         },
@@ -282,7 +290,7 @@ const fetchPlaylistSongs = async (name: string) => {
       },
       select: {
         playlist: {
-          select: { name: true, id:true },
+          select: { name: true, id: true },
         },
 
         songs: {
@@ -313,48 +321,51 @@ const fetchPlaylistSongs = async (name: string) => {
   }
 };
 
-const songsTotalListener = async (data:object) => {
+const songsTotalListener = async (data: object) => {
   try {
     const result = await prisma.songs.findMany({
-      where:data,
+    where:data ,
       select: {
         name: true,
         duration: true,
-        played_songs: {
-          select: {
-            count: true,
-          },
-        },
+        plays:true
       },
+      orderBy:{plays:'desc'}
     });
     
-    return {success:true, message:`Songs listen ${recordMessafeSuccess}`, result:result}
+    return {
+      success: true,
+      message: `Songs listen ${recordMessafeSuccess}`,
+      result: result,
+    };
   } catch (error) {
     logger.error(error);
-    return {success:true, message:(error as Error).name}
+    return { success: true, message: (error as Error).name };
   }
 };
 
-
-const showFollowers = async(name:string)=>{
+const showFollowers = async (name: string) => {
   try {
     const data = await prisma.followers.findMany({
-      where:{artists:{name:{contains:name}}},
-      select:{
-        artists:{select:{name:true, id:true}},
-        users:{select:{name:true}}
-      }
-    })
-    if(data.length ==0){
-      return  returnObjectFunction(false,'Followers not found...')
-    }
-    else{
-      return returnObjectFunction(true, `Follower Retrived successfully....`, data)
+      where: { artists: { name: { contains: name } } },
+      select: {
+        artists: { select: { name: true, id: true } },
+        users: { select: { name: true } },
+      },
+    });
+    if (data.length == 0) {
+      return returnObjectFunction(false, "Followers not found...");
+    } else {
+      return returnObjectFunction(
+        true,
+        `Follower Retrived successfully....`,
+        data
+      );
     }
   } catch (error) {
-    return returnObjectFunction(false,(error as Error).message);
+    return returnObjectFunction(false, (error as Error).message);
   }
-}
+};
 
 export {
   fetchAllGenres,
@@ -367,7 +378,7 @@ export {
   fetchPlaylists,
   fetchPlaylistSongs,
   songsTotalListener,
-  showFollowers
+  showFollowers,
 };
 
 // Difference between include and select

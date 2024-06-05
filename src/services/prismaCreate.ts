@@ -187,6 +187,8 @@ const insertPLayedSongs = async(user_id:number, song_ids:number[])=>{
           const result = await prisma.played_songs.createMany({
             data: data.result.map((element)=>({user_id:user_id, song_id:element, count:1}))
           })
+           await prisma.songs.updateMany({where:{id:{in:song_ids}}, data:{plays:{increment:1}}});
+          
           return returnObjectFunction(true, data.message, result)
         }
         else{
